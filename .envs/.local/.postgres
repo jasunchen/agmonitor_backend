@@ -1,0 +1,7 @@
+# PostgreSQL
+# ------------------------------------------------------------------------------
+POSTGRES_HOST=postgres
+POSTGRES_PORT=5432
+POSTGRES_DB=agmonitor
+POSTGRES_USER=QRwhEXudMrKTYeFptaAtNMWMROUflPqJ
+POSTGRES_PASSWORD=lgLwtlf0Wj33YuNY4f8GaOjxD3IgU4Hsb7lfWKJmdVLeTVOyEPwhSV7voRYxWJ2W
