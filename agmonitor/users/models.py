@@ -36,3 +36,8 @@ class ag_user_asset(models.Model):
 
     def __str__(self):
         return self.asset_name
+
+class ag_asset_data(models.Model):
+    user_asset = models.ForeignKey(ag_user, on_delete=models.DO_NOTHING)
+    start_time = models.TimeField()
+    

@@ -3,6 +3,11 @@ agmonitor
 
 UCSB agmonitor
 
+docker-compose -f local.yml build
+git init
+pre-commit install
+docker-compose -f local.yml up
+
 .. image:: https://img.shields.io/badge/built%20with-Cookiecutter%20Django-ff69b4.svg?logo=cookiecutter
      :target: https://github.com/cookiecutter/cookiecutter-django/
      :alt: Built with Cookiecutter Django
