@@ -43,3 +43,6 @@ class ag_asset_data(models.Model):
     asset_id =  models.ForeignKey(ag_user_asset, on_delete=models.DO_NOTHING)
     consumed_energy = models.FloatField()
     produced_energy = models.FloatField()
+
+    def __str__(self):
+        return self.consumed_energy
