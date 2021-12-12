@@ -31,13 +31,14 @@ class ag_user(models.Model):
 
 class ag_user_asset(models.Model):
     user = models.ForeignKey(ag_user, on_delete=models.DO_NOTHING)
-    asset_name = models.CharField(max_length=100)
     description = models.TextField(max_length=254 ,blank=True)
 
     def __str__(self):
         return self.asset_name
 
 class ag_asset_data(models.Model):
-    user_asset = models.ForeignKey(ag_user, on_delete=models.DO_NOTHING)
     start_time = models.TimeField()
-    
+    interval = models.IntegerField()
+    asset_id =  models.ForeignKey(ag_user_asset, on_delete=models.DO_NOTHING)
+    consumed_energy = models.FloatField()
+    produced_energy = models.FloatField()
