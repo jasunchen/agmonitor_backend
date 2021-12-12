@@ -32,6 +32,7 @@ class ag_user(models.Model):
 class ag_user_asset(models.Model):
     user = models.ForeignKey(ag_user, on_delete=models.DO_NOTHING)
     description = models.TextField(max_length=254 ,blank=True)
+    asset_name = models.CharField(max_length=254, blank=True)
 
     def __str__(self):
         return self.asset_name
