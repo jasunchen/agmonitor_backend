@@ -7,5 +7,5 @@ def create_asset_data(start_time, interval, asset_id, consumed_energy, produced_
         asset_data_obj.save()
         res = "Asset data created successfully"
     except Exception as e:
-        res = "Error creating asset data"
+        res = "Error: " + str(e)
     return res
