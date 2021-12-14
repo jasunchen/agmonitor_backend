@@ -1,4 +1,4 @@
-from models import User
+from agmonitor.users.models import User
 
 def save_user(email):
     res = ""
