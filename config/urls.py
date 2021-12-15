@@ -27,7 +27,7 @@ urlpatterns += [
     # DRF auth token
     path("auth-token/", obtain_auth_token),
     path("getUser/", getAllUsers),
-    path("saveUser/", edit_user),
+    path("editUser/", edit_user),
 ]
 
 if settings.DEBUG:
