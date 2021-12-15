@@ -22,4 +22,4 @@ class asset_data(models.Model):
     produced_energy = models.FloatField()
 
     def __str__(self):
-        return self.consumed_energy
+        return self.asset_id + self.start_time
