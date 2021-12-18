@@ -41,18 +41,9 @@ LOCALE_PATHS = [str(ROOT_DIR / "locale")]
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#databases
 
-# DATABASES = {"default": env.db("DATABASE_URL")}
+DATABASES = {"default": env.db("DATABASE_URL")}
 
-DATABASES ={
-    'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'agmonitor',
-            'USER': 'root',
-            'PASSWORD': 'Xdf2018xdf!',
-            'HOST': 'localhost',
-            'PORT': '3306',
-        }
-}
+
 
 DATABASES["default"]["ATOMIC_REQUESTS"] = True
 
