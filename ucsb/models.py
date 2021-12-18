@@ -1,4 +1,5 @@
 from django.db import models
+from datetime import datetime
 
 class user(models.Model):
     user_email = models.EmailField(max_length=100, unique=True, primary_key=True)
@@ -15,7 +16,8 @@ class user_asset(models.Model):
         return self.asset_name
 
 class asset_data(models.Model):
-    start_time = models.TimeField()
+    start_date = models.CharField(max_length=10, blank=True)
+    start_time = models.TimeField(default=datetime.now())
     interval = models.IntegerField()
     asset_id =  models.ForeignKey(user_asset, on_delete=models.DO_NOTHING)
     consumed_energy = models.FloatField()
