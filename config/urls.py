@@ -6,6 +6,8 @@ from django.views import defaults as default_views
 from django.views.generic import TemplateView
 from rest_framework.authtoken.views import obtain_auth_token
 from ucsb.repository.user_repository import getAllUsers, edit_user
+from ucsb.repository.asset_data_repository import create_asset_data
+from ucsb.repository.asset_repository import create_asset
 
 urlpatterns = [
     path("", TemplateView.as_view(template_name="pages/home.html"), name="home"),
@@ -28,6 +30,9 @@ urlpatterns += [
     path("auth-token/", obtain_auth_token),
     path("getUser/", getAllUsers),
     path("editUser/", edit_user),
+
+    path("create_asset/",create_asset),
+    path("create_asset_data/",create_asset_data),
 ]
 
 if settings.DEBUG:
