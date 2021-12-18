@@ -7,16 +7,20 @@ from rest_framework.decorators import api_view
 def edit_user(request):
     if request.method == 'POST':
         email = request.data.get('email')
+        if email == '':
+            return Response({"detail": "Email cannot be empty"}, status=400)
         tmp_user = user(user_email=email)
         tmp_user.save()
-        return Response("User created successfully")
+        return Response({"detail": "User created successfully"})
     elif request.method == 'DELETE':
         email = request.data.get('email')
+        if email == '':
+            return Response({"detail": "Email cannot be empty"}, status=400)
         tmp_user = user.objects.get(user_email=email)
         tmp_user.delete()
-        return Response("User deleted successfully")
+        return Response({"detail": "User deleted successfully"})
     else:
-        return Response("Error: Invalid request")
+        return Response({"detail": "Error: Invalid request"}, status=400)
     
 
 
