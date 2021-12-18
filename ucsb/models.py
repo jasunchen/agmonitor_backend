@@ -16,7 +16,7 @@ class user_asset(models.Model):
         return self.asset_name
 
 class asset_data(models.Model):
-    start_time = models.CharField(max_length=17, blank=True)
+    start_time = models.IntegerField(default=0)
     interval = models.IntegerField()
     asset_id =  models.ForeignKey(user_asset, on_delete=models.DO_NOTHING)
     consumed_energy = models.FloatField()
