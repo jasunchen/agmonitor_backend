@@ -7,17 +7,20 @@ from datetime import datetime
 @api_view(['POST'])
 def create_asset_data(request):
     id = request.data.get('id')
-    tmp_asset = user_asset.objects.get(id=id)
     data = request.data.get('data')
+    add_asset_data(data, id)
+    return Response({"detail": "Data created successfully"}, status = 200)
+
+
+@api_view(['GET'])
+def get_asset_data(request):
+    id = request.query_params.get('id')
+    tmp_asset = user_asset.objects.get(id=id)
     res = []
-    asset_data_start_time = asset_data.objects.filter(asset_id=tmp_asset).values_list('start_time', flat=True)
-    for d in data:
-        start_time_str = d['start_time']
-        start_time = datetime.strptime(start_time_str, '%Y-%m-%d %H:%M').strftime('%s')
-        if start_time not in asset_data_start_time:
-            tmp_data = asset_data(asset_id=tmp_asset, start_time=start_time, interval=d['interval'], consumed_energy=d['consumed_energy'], produced_energy=d['produced_energy'])
-            tmp_data.save()
-    return Response({"detail": "Data created successfully"}, status=200)
+    result = asset_data.objects.filter(asset_id=tmp_asset)
+    for r in result:
+        res.append(model_to_dict(r))
+    return Response(res)
 
 
 @api_view(['DELETE'])
@@ -28,9 +31,17 @@ def deleteAssetData(request):
 
 
 
+def add_asset_data(data, id):
+    tmp_asset = user_asset.objects.get(id=id)
+    asset_data_start_time = asset_data.objects.filter(asset_id=tmp_asset).values_list('start_time', flat=True)
+    for d in data:
+        start_time_str = d['start_time']
+        start_time = datetime.strptime(start_time_str, '%Y-%m-%d %H:%M').strftime('%s')
+        if start_time not in asset_data_start_time:
+            tmp_data = asset_data(asset_id=tmp_asset, start_time=start_time, interval=d['interval'], consumed_energy=d['consumed_energy'], produced_energy=d['produced_energy'])
+            tmp_data.save()
+
 def delete_asset_data(id):
     tmp_asset = user_asset.objects.get(id=id)
-    data_set = asset_data.objects.filter(asset_id=tmp_asset)
-    for d in data_set:
-        d.delete()
+    asset_data.objects.filter(asset_id=tmp_asset).delete()
     return True
