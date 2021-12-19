@@ -5,12 +5,11 @@ from rest_framework.decorators import api_view
 from datetime import datetime
 
 @api_view(['POST'])
-def create_asset_data(request):
+def add_asset_data(request):
     id = request.data.get('id')
     data = request.data.get('data')
-    res = add_asset_data(data, id)
+    res = add_asset_data_helper(data, id)
     return res
-
 
 @api_view(['GET'])
 def get_asset_data(request):
@@ -19,16 +18,14 @@ def get_asset_data(request):
     result = asset_data.objects.filter(asset_id=tmp_asset).values('interval', 'consumed_energy', 'produced_energy', 'start_time', 'asset_id')
     return Response(result)
 
-
 @api_view(['DELETE'])
 def delete_asset_data(request):
     id = request.data.get('id')
-    res = deleteassetdata(id)
+    res = delete_asset_data_helper(id)
     return res
 
 
-
-def add_asset_data(data, id):
+def add_asset_data_helper(data, id):
     tmp_asset = user_asset.objects.get(id=id)
     asset_data_start_time = asset_data.objects.filter(asset_id=tmp_asset).values_list('start_time', flat=True)
     for d in data:
@@ -39,7 +36,7 @@ def add_asset_data(data, id):
             tmp_data.save()
     return Response({"detail": "Data created successfully"}, status = 200)
 
-def deleteassetdata(id):
+def delete_asset_data_helper(id):
     tmp_asset = user_asset.objects.get(id=id)
     asset_data.objects.filter(asset_id=tmp_asset).delete()
-    return Response({"detail": "Data deleted successfully"}, status=200)
+    return Response({"detail": "Data deleted successfully"}, status = 200)
