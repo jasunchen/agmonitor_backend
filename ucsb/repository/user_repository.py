@@ -11,7 +11,7 @@ def edit_user(request):
             return Response({"detail": "Email cannot be empty"}, status=400)
         tmp_user = user(user_email=email)
         tmp_user.save()
-        return Response({"detail": "User created successfully"})
+        return Response({"detail": "User created successfully"}, status=200)
     elif request.method == 'DELETE':
         email = request.data.get('email')
         if email == '':
