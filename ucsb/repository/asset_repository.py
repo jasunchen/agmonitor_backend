@@ -16,7 +16,16 @@ def add_asset(request):
 @api_view(['POST'])
 def update_asset(request):
     id = request.data.get('id')
-    user_asset.objects.filter(id=id).update(asset_name=request.data.get('name'), description=request.data.get('description'))
+    name = request.data.get('name')
+    desc = request.data.get('description')
+    try:
+        asset = user_asset.objects.get(id=id)
+    except:
+        return Response({"detail":"Asset does not exist"}, status=400)
+    asset.asset_name = name
+    asset.description = desc
+    asset.save()
+    
     return Response({"detail":"Asset updated successfully"})
 
 @api_view(['DELETE'])
