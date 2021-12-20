@@ -11,13 +11,13 @@ def add_asset(request):
     desc = request.data.get('description')
     asset = user_asset(user=tmp_user, asset_name=name, description=desc)
     asset.save()
-    return Response("Asset created successfully")
+    return Response({"detail":"Asset created successfully"})
 
 @api_view(['POST'])
 def update_asset(request):
     id = request.data.get('id')
     user_asset.objects.filter(id=id).update(asset_name=request.data.get('name'), description=request.data.get('description'))
-    return Response("Asset updated successfully")
+    return Response({"detail":"Asset updated successfully"})
 
 @api_view(['DELETE'])
 def delete_asset(request):
