@@ -31,6 +31,10 @@ def update_asset(request):
 @api_view(['DELETE'])
 def delete_asset(request):
     id = request.data.get('id')
+    try:
+        asset = user_asset.objects.get(id=id)
+    except:
+        return Response({"detail":"Asset does not exist"}, status=400)
     delete_asset_data_helper(id)
     user_asset.objects.filter(id=id).delete()
     return Response({"detail": "Asset deleted successfully"})
