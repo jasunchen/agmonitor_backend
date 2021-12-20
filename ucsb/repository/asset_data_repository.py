@@ -13,7 +13,10 @@ def add_asset_data(request):
 @api_view(['GET'])
 def get_asset_data(request):
     id = request.query_params.get('id')
-    tmp_asset = user_asset.objects.get(id=id)
+    try:
+        tmp_asset = user_asset.objects.get(id=id)
+    except:
+        return Response({"detail": "Asset does not exist"}, status = 400)
     result = asset_data.objects.filter(asset_id=tmp_asset).values('interval', 'consumed_energy', 'produced_energy', 'start_time', 'asset_id')
     return Response(result)
 
@@ -36,6 +39,9 @@ def add_asset_data_helper(data, id):
     return Response({"detail": "Data created successfully"}, status = 200)
 
 def delete_asset_data_helper(id):
-    tmp_asset = user_asset.objects.get(id=id)
+    try:
+        tmp_asset = user_asset.objects.get(id=id)
+    except:
+        return Response({"detail": "Asset does not exist"}, status = 400)
     asset_data.objects.filter(asset_id=tmp_asset).delete()
     return Response({"detail": "Data deleted successfully"}, status = 200)
