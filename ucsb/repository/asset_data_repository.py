@@ -26,7 +26,6 @@ def delete_asset_data(request):
     res = delete_asset_data_helper(id)
     return res
 
-
 def add_asset_data_helper(data, id):
     tmp_asset = user_asset.objects.get(id=id)
     asset_data_start_time = asset_data.objects.filter(asset_id=tmp_asset).values_list('start_time', flat=True)
