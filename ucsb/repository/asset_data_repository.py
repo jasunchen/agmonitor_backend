@@ -34,7 +34,7 @@ def add_asset_data_helper(data, id):
     asset_data_start_time = asset_data.objects.filter(asset_id=tmp_asset).values_list('start_time', flat=True)
     for d in data:
         start_time_str = d['start_time']
-        start_time = datetime.strptime(start_time_str, '%Y-%m-%d %H:%M').strftime('%s')
+        start_time = datetime.strptime(start_time_str, '%m/%d/%Y %H:%M').strftime('%s')
         if start_time not in asset_data_start_time:
             tmp_data = asset_data(asset_id=tmp_asset, start_time=start_time, interval=d['interval'], consumed_energy=d['consumed_energy'], produced_energy=d['produced_energy'])
             tmp_data.save()
