@@ -21,7 +21,7 @@ def edit_user(request):
         return Response({"detail": "User deleted successfully"})
     else:
         return Response({"detail": "Error: Invalid request"}, status=400)
-    
+
 
 
 #test function
@@ -32,3 +32,19 @@ def getAllUsers(request):
     for r in result:
         res.append(model_to_dict(r))
     return Response(res)
+
+@api_view(['POST'])
+def register_user(request):
+    if request.method == 'POST':
+        email = request.data.get('email')
+        if email == '':
+            return Response({"detail": "Email cannot be empty"}, status=400)
+        try:
+            a_user = user.objects.get(user_email=email)
+            return Response({"detail": "Has already registered"})
+        except (user.DoesNotExist, user.MultipleObjectsReturned):
+           tmp_user = user(user_email=email)
+           tmp_user.save()
+           return Response({"detail": "User created successfully"}, status=200)
+    else:
+        return Response({"detail": "Error: Invalid request"}, status=400)
