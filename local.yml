@@ -21,6 +21,10 @@ services:
     ports:
       - "8000:8000"
     command: /start
+    networks:
+      default:
+        aliases:
+          - agmonitor-api.dev
 
   postgres:
     build:
