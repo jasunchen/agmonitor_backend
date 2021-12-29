@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 from ucsb.models import user_asset, user
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
@@ -46,7 +45,6 @@ def get_all_assets(request):
     tmp_user = user.objects.get(user_email=email)
     result = user_asset.objects.filter(user=tmp_user).values('id', 'asset_name', 'description')
     return Response(result)
-=======
 from ucsb.models import user_asset
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
@@ -80,4 +78,3 @@ def create_asset(request):
         except Exception as e:
             res = {"status_cooe":20001,"message":"Error: " + str(e)}
         return Response(res)
->>>>>>> 5e312d7d0f1d3c180cd4da2409e4c4ed25dca767

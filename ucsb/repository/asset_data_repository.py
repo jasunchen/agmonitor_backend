@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 from ucsb.models import user_asset, asset_data
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
@@ -58,7 +57,6 @@ def delete_asset_data_helper(id):
         return Response({"detail": "Asset does not exist"}, status = 400)
     asset_data.objects.filter(asset_id=tmp_asset).delete()
     return Response({"detail": "Data deleted successfully"}, status = 200)
-=======
 from ucsb.models import asset_data
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
@@ -97,4 +95,3 @@ def create_asset_data(request):
         except Exception as e:
             res = {"status_cooe": 20001, "message":"Error: " + str(e)}
         return Response(res)
->>>>>>> 5e312d7d0f1d3c180cd4da2409e4c4ed25dca767
