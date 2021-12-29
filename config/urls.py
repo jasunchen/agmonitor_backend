@@ -28,6 +28,7 @@ urlpatterns += [
     path("api/", include("config.api_router")),
     # DRF auth token
     path("auth-token/", obtain_auth_token),
+<<<<<<< HEAD
     path("getUser", getAllUsers),
     path("editUser", edit_user),
     path("registerUser", register_user),
@@ -39,6 +40,13 @@ urlpatterns += [
     path("updateAssetData", update_asset),
     path("deleteAssetData", delete_asset_data),
     path("getAssetData", get_asset_data),
+=======
+    path("getUser/", getAllUsers),
+    path("editUser/", edit_user),
+
+    path("create_asset/",create_asset),
+    path("create_asset_data/",create_asset_data),
+>>>>>>> 5e312d7d0f1d3c180cd4da2409e4c4ed25dca767
 ]
 
 if settings.DEBUG:
