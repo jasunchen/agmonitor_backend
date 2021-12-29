@@ -2,6 +2,7 @@ from ucsb.models import user_asset, asset_data
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from datetime import datetime
+from ucsb.repository.helpers import *
 
 @api_view(['POST'])
 def add_asset_data(request):
@@ -12,12 +13,31 @@ def add_asset_data(request):
 
 @api_view(['GET'])
 def get_asset_data(request):
+    params = ["id", "start_time"]
+    
+    #Check for Required Fields
+    for p in params:
+        if request.query_params.get(p, None) == None:
+            return Response(
+                {"message": "Missing Required Parameters: {}".format(p)}, 
+                status = 400)
+
+    #Check for Invalid Parameters
+    if verify(request.query_params, params): 
+        return Response(
+            {"message": "Request has invalid parameter not in {}".format(params)}, 
+            status = 400)
+
     id = request.query_params.get('id')
-    try:
+    t = request.query_params.get('start_time')
+
+    # Check for Invalid User Id
+    try:    
         tmp_asset = user_asset.objects.get(id=id)
     except(user_asset.DoesNotExist):
         return Response({"detail": "Asset does not exist"}, status = 400)
-    result = asset_data.objects.filter(asset_id=tmp_asset).values('interval', 'consumed_energy', 'produced_energy', 'start_time', 'asset_id')
+
+    result = asset_data.objects.filter(asset_id=tmp_asset, start_time__gte=t).values('interval', 'consumed_energy', 'produced_energy', 'start_time', 'asset_id')
     return Response(result)
 
 @api_view(['DELETE'])
