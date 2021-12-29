@@ -6,10 +6,10 @@ import requests
 class UserTestCase(TestCase):
     def setUp(self):
         self.client = APIClient()
-        user.objects.create(user_email="abc@ucsb.edu")
-        user.objects.create(user_email="bcd@ucsb.edu")
+        self.client.post('/registerUser', {'email': 'abc@ucsb.edu'}, format='json')
+        self.client.post('/registerUser', {'email': 'bcd@ucsb.edu'}, format='json')
     
-    def test_user_email(self):
+    def test_register_user_email(self):
         response = self.client.get('/getUser')
         self.assertEqual(response.data[0]['user_email'], "abc@ucsb.edu")
         self.assertEqual(response.data[1]['user_email'], "bcd@ucsb.edu")
