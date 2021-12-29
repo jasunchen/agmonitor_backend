@@ -11,7 +11,7 @@ class UserTestCase(TestCase):
         user1 = user.objects.get(user_email="abc@ucsb.edu")
         user2 = user.objects.get(user_email="bcd@ucsb.edu")
         self.assertEqual(user1.user_email, "abc@ucsb.edu")
-        self.assertEqual(user2.user_email, "bcd@ucsb.edu")
+        self.assertEqual(user2.user_email, "d@ucsb.edu")
 
 class user_assetTestCase(TestCase):
     def setUp(self):
