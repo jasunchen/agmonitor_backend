@@ -1,5 +1,6 @@
 from django.test import TestCase
 from ucsb.models import user, user_asset, asset_data
+import requests
 
 class UserTestCase(TestCase):
     def setUp(self):
@@ -25,4 +26,5 @@ class user_assetTestCase(TestCase):
         user_asset2 = user_asset.objects.get(user=user1, asset_name="test2")
         self.assertEqual(user_asset1.asset_name, "test1")
         self.assertEqual(user_asset2.asset_name, "test2")
+
 
