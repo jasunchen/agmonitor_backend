@@ -32,7 +32,6 @@ jobs:
       - uses: actions/checkout@v2
       - uses: akhileshns/heroku-deploy@v3.12.12 # This is the action
         with:
-          # heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-          heroku_api_key: "9ba2456d-23fd-4b32-8547-9197d2b2d1d4"
+          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
           heroku_app_name: "agmonitor-pina-colada-back" #Must be unique in Heroku
           heroku_email: "kaiwen_li@umail.ucsb.edu"
