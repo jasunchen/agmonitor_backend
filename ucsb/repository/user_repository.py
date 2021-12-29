@@ -41,7 +41,7 @@ def register_user(request):
             return Response({"detail": "Email cannot be empty"}, status=400)
         try:
             a_user = user.objects.get(user_email=email)
-            return Response({"detail": "Has already registered"})
+            return Response({"detail": "User has already registered"})
         except (user.DoesNotExist, user.MultipleObjectsReturned):
            tmp_user = user(user_email=email)
            tmp_user.save()
