@@ -4,20 +4,21 @@ import json
 
 from calendar import timegm
 
-ASSET_ID =  1
-FILE_NAME = "test2.csv"
+ASSET_ID =  3
+FILE_NAME = "fulldata.csv"
 
 file = open(FILE_NAME, "r").read()
 lyst = list()
 
-for line in file.split("\n")[1:]:
+# finished up to 5K
+for line in file.split("\n")[3001:5001]:
         t, consumed_energy, produced_energy = line.strip("\r").split(",")
         
         lyst.append({
                 "start_time" : t,
                 "interval": 15,
-                "consumed_energy": consumed_energy,
-                "produced_energy": produced_energy
+                "consumed_energy": float(consumed_energy),
+                "produced_energy": float(produced_energy)
         })
 
 headers = {'content-type' : 'application/json'}
@@ -28,5 +29,4 @@ response = requests.post(
         json={"id" : ASSET_ID,
                 "data" : lyst})
 
-response.raise_for_status()
 print(response.json())
