@@ -62,7 +62,7 @@ class asset_dataTestCase(TestCase):
     def test_get_asset_data(self):
         asset = user_asset.objects.get(asset_name="test_asset_data")
         asset_data.objects.create(asset_id=asset, start_time=175049, interval=1, consumed_energy=0.0, produced_energy=0.0)
-        response = self.client.get('/getAssetData?id={}&start_time={}'.format(self.id, 0))
+        response = self.client.get('/getAssetData?id={}&start={}&end={}'.format(self.id, 0, 9999999))
         self.assertEqual(response.data[0]['start_time'], 175049)
         self.assertEqual(response.data[0]['interval'], 1)
         self.assertEqual(response.data[0]['consumed_energy'], 0.0)
@@ -79,7 +79,7 @@ class asset_dataTestCase(TestCase):
                 }]
             }
         self.client.post('/createAssetData', body, format='json')
-        response = self.client.get('/getAssetData?id={}&start_time={}'.format(self.id, 0))
+        response = self.client.get('/getAssetData?id={}&start={}&end={}'.format(self.id, 0, 1577896299))
         self.assertEqual(response.data[0]['start_time'], 1577896200)
         self.assertEqual(response.data[0]['interval'], 15)
         self.assertEqual(response.data[0]['consumed_energy'], 1.00)
@@ -89,7 +89,7 @@ class asset_dataTestCase(TestCase):
         asset = user_asset.objects.get(asset_name="test_asset_data")
         asset_data.objects.create(asset_id=asset, start_time=175049, interval=1, consumed_energy=0.0, produced_energy=0.0)
         response = self.client.delete('/deleteAssetData', {'id' : self.id }, format='json')
-        response = self.client.get('/getAssetData?id={}&start_time={}'.format(self.id, 0))
+        response = self.client.get('/getAssetData?id={}&start={}&end={}'.format(self.id, 0, 9999999))
         self.assertEqual(len(response.data), 0)
 
     
