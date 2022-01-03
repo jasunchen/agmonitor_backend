@@ -1,4 +1,4 @@
-UCSB agmonitor
+UCSB AgMonitor
 =========
 
 Deploy command

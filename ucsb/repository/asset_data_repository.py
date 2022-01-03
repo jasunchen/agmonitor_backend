@@ -13,7 +13,7 @@ def add_asset_data(request):
 
 @api_view(['GET'])
 def get_asset_data(request):
-    params = ["id", "start_time"]
+    params = ["id", "start", "end"]
     
     #Check for Required Fields
     for p in params:
@@ -29,7 +29,8 @@ def get_asset_data(request):
             status = 400)
 
     id = request.query_params.get('id')
-    t = request.query_params.get('start_time')
+    start = request.query_params.get('start')
+    end = request.query_params.get('end')
 
     # Check for Invalid User Id
     try:    
@@ -37,7 +38,7 @@ def get_asset_data(request):
     except:
         return Response({"detail": "Asset does not exist"}, status = 400)
 
-    result = asset_data.objects.filter(asset_id=tmp_asset, start_time__gte=t).values('interval', 'consumed_energy', 'produced_energy', 'start_time', 'asset_id')
+    result = asset_data.objects.filter(asset_id=tmp_asset, start_time__gte=start, start_time__lte=end).values('interval', 'consumed_energy', 'produced_energy', 'start_time', 'asset_id')
     return Response(result)
 
 @api_view(['DELETE'])
