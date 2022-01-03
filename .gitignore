@@ -284,3 +284,4 @@ agmonitor/media/
 
 !.envs/.local/
 
+*csv
