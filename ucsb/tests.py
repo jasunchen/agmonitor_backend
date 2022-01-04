@@ -1,30 +1,97 @@
 from django.test import TestCase
 from ucsb.models import user, user_asset, asset_data
-import requests
+from django.forms.models import model_to_dict
+from rest_framework.test import APIClient
 
 class UserTestCase(TestCase):
     def setUp(self):
-        user.objects.create(user_email="abc@ucsb.edu")
-        user.objects.create(user_email="bcd@ucsb.edu")
+        self.client = APIClient()
+        self.client.post('/registerUser', {'email': 'test@ucsb.edu'}, format='json')
+        self.client.post('/registerUser', {'email': 'bcd@ucsb.edu'}, format='json')
     
-    def test_user_email(self):
-        user1 = user.objects.get(user_email="abc@ucsb.edu")
-        user2 = user.objects.get(user_email="bcd@ucsb.edu")
-        self.assertEqual(user1.user_email, "abc@ucsb.edu")
-        self.assertEqual(user2.user_email, "bcd@ucsb.edu")
+    def test_register_user_email(self):
+        response = self.client.get('/getUser')
+        self.assertEqual(response.data[0]['user_email'], "test@ucsb.edu")
+        self.assertEqual(response.data[1]['user_email'], "bcd@ucsb.edu")
 
 class user_assetTestCase(TestCase):
     def setUp(self):
-        user.objects.create(user_email="abc@ucsb.edu")
-        user1 = user.objects.get(user_email="abc@ucsb.edu")
-        user_asset.objects.create(user=user1, description="test1", asset_name="test1")
-        user_asset.objects.create(user=user1, description="test2", asset_name="test2")
+        self.client = APIClient()
+        user.objects.create(user_email="test@ucsb.edu")
+
+    def test_get_user_asset(self):
+        user1 = user.objects.get(user_email="test@ucsb.edu")
+        user_asset.objects.create(user=user1, asset_name="test_asset", description="test")
+        response = self.client.get('/getUserAsset?email=test@ucsb.edu')
+        self.assertEqual(response.data[0]['asset_name'], "test_asset")
+        self.assertEqual(response.data[0]['description'], "test")
     
-    def test_user_email(self):
-        user1 = user.objects.get(user_email="abc@ucsb.edu")
-        user_asset1 = user_asset.objects.get(user=user1, asset_name="test1")
-        user_asset2 = user_asset.objects.get(user=user1, asset_name="test2")
-        self.assertEqual(user_asset1.asset_name, "test1")
-        self.assertEqual(user_asset2.asset_name, "test2")
+    def test_add_user_asset(self):
+        self.client.post('/addUserAsset', {'email': 'test@ucsb.edu', 'name': 'test_asset', 'description': 'test'}, format='json')
+        response = self.client.get('/getUserAsset?email=test@ucsb.edu')
+        self.assertEqual(response.data[0]['asset_name'], "test_asset")
+        self.assertEqual(response.data[0]['description'], "test")
+    
+    def test_delete_user_asset(self):
+        user1 = user.objects.get(user_email="test@ucsb.edu")
+        user_asset.objects.create(user=user1, asset_name="test_asset", description="test")
+        response = self.client.get('/getUserAsset?email=test@ucsb.edu')
+        self.client.delete('/deleteUserAsset', {'id' : response.data[0]['id']}, format='json')
+        response = self.client.get('/getUserAsset?email=test@ucsb.edu')
+        self.assertEqual(len(response.data), 0)
+
+    def test_update_user_asset(self):
+        user1 = user.objects.get(user_email="test@ucsb.edu")
+        user_asset.objects.create(user=user1, asset_name="test_asset", description="test")
+        res = self.client.get('/getUserAsset?email=test@ucsb.edu')
+        response = self.client.post('/updateUserAsset', {'id': res.data[0]['id'], 'name': 'test_asset_updated', 'description': 'test_updated'}, format='json')
+        response = self.client.get('/getUserAsset?email=test@ucsb.edu')
+        self.assertEqual(response.data[0]['asset_name'], "test_asset_updated")
+        self.assertEqual(response.data[0]['description'], "test_updated")
+    
+
+class asset_dataTestCase(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        user.objects.create(user_email="test@ucsb.edu")
+        user1 = user.objects.get(user_email="test@ucsb.edu")
+        user_asset.objects.create(user=user1, asset_name="test_asset_data", description="test")
+        res = self.client.get('/getUserAsset?email=test@ucsb.edu')
+        self.id = res.data[0]['id']
+
+    def test_get_asset_data(self):
+        asset = user_asset.objects.get(asset_name="test_asset_data")
+        asset_data.objects.create(asset_id=asset, start_time=175049, interval=1, consumed_energy=0.0, produced_energy=0.0)
+        response = self.client.get('/getAssetData?id={}&start={}&end={}'.format(self.id, 0, 9999999))
+        self.assertEqual(response.data[0]['start_time'], 175049)
+        self.assertEqual(response.data[0]['interval'], 1)
+        self.assertEqual(response.data[0]['consumed_energy'], 0.0)
+        self.assertEqual(response.data[0]['produced_energy'], 0.0)
+
+    def test_add_asset_data(self):
+        body = {
+                "id": self.id,
+                "data": [{
+                    "start_time": "01/01/2020 16:30",
+                    "interval": 15,
+                    "consumed_energy": 1.00,
+                    "produced_energy": 0.15
+                }]
+            }
+        self.client.post('/createAssetData', body, format='json')
+        response = self.client.get('/getAssetData?id={}&start={}&end={}'.format(self.id, 0, 1577896299))
+        self.assertEqual(response.data[0]['start_time'], 1577896200)
+        self.assertEqual(response.data[0]['interval'], 15)
+        self.assertEqual(response.data[0]['consumed_energy'], 1.00)
+        self.assertEqual(response.data[0]['produced_energy'], 0.15)
+    
+    def test_delete_asset_data(self):
+        asset = user_asset.objects.get(asset_name="test_asset_data")
+        asset_data.objects.create(asset_id=asset, start_time=175049, interval=1, consumed_energy=0.0, produced_energy=0.0)
+        response = self.client.delete('/deleteAssetData', {'id' : self.id }, format='json')
+        response = self.client.get('/getAssetData?id={}&start={}&end={}'.format(self.id, 0, 9999999))
+        self.assertEqual(len(response.data), 0)
+
+    
 
 
