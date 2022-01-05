@@ -8,6 +8,8 @@ docker-compose -f local.yml build
 
 docker-compose -f local.yml up
 
+docker-compose -p project -f local.yml up -d --build
+
 docker-compose -f local.yml run --rm django pytest
 
 
