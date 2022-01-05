@@ -41,9 +41,6 @@ urlpatterns += [
     path("getAssetData", get_asset_data),
     path("getUser/", getAllUsers),
     path("editUser/", edit_user),
-
-    path("create_asset/",create_asset),
-    path("create_asset_data/",create_asset_data),
 ]
 
 if settings.DEBUG:
