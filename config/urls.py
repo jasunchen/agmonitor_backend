@@ -39,8 +39,6 @@ urlpatterns += [
     path("updateAssetData", update_asset),
     path("deleteAssetData", delete_asset_data),
     path("getAssetData", get_asset_data),
-    path("getUser/", getAllUsers),
-    path("editUser/", edit_user),
 ]
 
 if settings.DEBUG:
