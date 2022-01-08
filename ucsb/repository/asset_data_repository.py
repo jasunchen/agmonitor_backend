@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from datetime import datetime
 from ucsb.repository.helpers import *
+from django.core.paginator import Paginator
 
 @api_view(['POST'])
 def add_asset_data(request):
@@ -13,7 +14,7 @@ def add_asset_data(request):
 
 @api_view(['GET'])
 def get_asset_data(request):
-    params = ["id", "start", "end"]
+    params = ["id", "start", "end", "page"]
     
     #Check for Required Fields
     for p in params:
@@ -31,6 +32,7 @@ def get_asset_data(request):
     id = request.query_params.get('id')
     start = request.query_params.get('start')
     end = request.query_params.get('end')
+    page_number = request.query_params.get('page')
 
     # Check for Invalid User Id
     try:    
@@ -38,8 +40,27 @@ def get_asset_data(request):
     except(user_asset.DoesNotExist):
         return Response({"detail": "Asset does not exist"}, status = 400)
 
-    result = asset_data.objects.filter(asset_id=tmp_asset, start_time__gte=start, start_time__lte=end).values('interval', 'consumed_energy', 'produced_energy', 'start_time', 'asset_id')
-    return Response(result)
+    result = Paginator(
+                asset_data
+                .objects
+                .filter(
+                    asset_id=tmp_asset, 
+                    start_time__gte=start, 
+                    start_time__lte=end)
+                .values(
+                    'interval', 
+                    'consumed_energy', 
+                    'produced_energy', 
+                    'start_time', 
+                    'asset_id'), 
+                96)
+        
+    page = result.get_page(page_number)
+    return Response({
+        "data" : page.object_list,
+        "has_previous" : page.has_previous(),
+        "has_next" : page.has_next()
+        })
 
 @api_view(['DELETE'])
 def delete_asset_data(request):
