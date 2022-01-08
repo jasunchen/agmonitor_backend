@@ -2,6 +2,7 @@ from ucsb.models import user_asset, user
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from ucsb.repository.asset_data_repository import delete_asset_data_helper
+from django.forms.models import model_to_dict
 
 @api_view(['POST'])
 def add_asset(request):
@@ -45,3 +46,14 @@ def get_all_assets(request):
     tmp_user = user.objects.get(user_email=email)
     result = user_asset.objects.filter(user=tmp_user).values('id', 'asset_name', 'description')
     return Response(result)
+
+@api_view(['GET'])
+def get_single_asset(request):
+    id = request.query_params.get('id')
+    
+    try:
+        asset = user_asset.objects.get(id=id)
+    except:
+        return Response({"detail":"Asset does not exist"}, status=400)
+    
+    return Response(model_to_dict(asset))
