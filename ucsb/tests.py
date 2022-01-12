@@ -10,7 +10,7 @@ class UserTestCase(TestCase):
         self.client.post('/registerUser', {'email': 'bcd@ucsb.edu'}, format='json')
     
     def test_register_user_email(self):
-        response = self.client.get('/getUser')
+        response = self.client.get('/getAllUsers')
         self.assertEqual(response.data[0]['user_email'], "test@ucsb.edu")
         self.assertEqual(response.data[1]['user_email'], "bcd@ucsb.edu")
 
