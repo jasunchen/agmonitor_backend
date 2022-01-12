@@ -7,7 +7,7 @@ from ucsb.repository.helpers import *
 @api_view(['POST'])
 def add_asset(request):
 
-    params = ["email", "name", "description"]
+    params = ["email", "name", "description", "is_generation"]
     
     #Check for Required Fields
     for p in params:
@@ -16,24 +16,36 @@ def add_asset(request):
                 {"message": "Missing Required Parameters: {}".format(p)}, 
                 status = 400)
 
-    #Check for Invalid Parameters
-    if verify(request.data, params): 
-        return Response(
-            {"message": "Request has invalid parameter not in {}".format(params)}, 
-            status = 400)
-
     email = request.data.get('email')
     tmp_user = user(user_email=email)
     name = request.data.get('name')
     desc = request.data.get('description')
-    asset = user_asset(user=tmp_user, asset_name=name, description=desc)
-    asset.save()
+
+    if request.data.get("is_generation"):
+        params = ["declination", "azimuth", "modules_power"]
+        #Check for Required Fields
+        for p in params:
+            if request.data.get(p, None) == None:
+                return Response(
+                    {"message": "Missing Required Parameters: {}".format(p)}, 
+                    status = 400)
+        
+        declination = request.data.get('declination')
+        azimuth = request.data.get('azimuth')
+        modules_power = request.data.get('modules_power')
+        asset = user_asset(user=tmp_user, asset_name=name, description=desc, declination=declination, azimuth=azimuth, modules_power=modules_power, is_generation=True)
+        asset.save()
+    else:
+        asset = user_asset(user=tmp_user, asset_name=name, description=desc)
+        asset.save()
+
+
     return Response({"detail":"Asset created successfully"})
 
 @api_view(['POST'])
 def update_asset(request):
 
-    params = ["id", "name", "description"]
+    params = ["id", "name", "description", "is_generation"]
     
     #Check for Required Fields
     for p in params:
