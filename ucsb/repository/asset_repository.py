@@ -53,13 +53,7 @@ def update_asset(request):
             return Response(
                 {"message": "Missing Required Parameters: {}".format(p)}, 
                 status = 400)
-
-    #Check for Invalid Parameters
-    if verify(request.data, params): 
-        return Response(
-            {"message": "Request has invalid parameter not in {}".format(params)}, 
-            status = 400)
-
+    
     id = request.data.get('id')
     name = request.data.get('name')
     desc = request.data.get('description')
@@ -67,8 +61,24 @@ def update_asset(request):
         asset = user_asset.objects.get(id=id)
     except:
         return Response({"detail":"Asset does not exist"}, status=400)
+
     asset.asset_name = name
     asset.description = desc
+    if asset.is_generation:
+        params = ["declination", "azimuth", "modules_power"]
+        #Check for Required Fields
+        for p in params:
+            if request.data.get(p, None) == None:
+                return Response(
+                    {"message": "Missing Required Parameters: {}".format(p)}, 
+                    status = 400)
+        
+        declination = request.data.get('declination')
+        azimuth = request.data.get('azimuth')
+        modules_power = request.data.get('modules_power')
+        asset.declination = declination
+        asset.azimuth = azimuth
+        asset.modules_power = modules_power
     asset.save()
     
     return Response({"detail":"Asset updated successfully"})
