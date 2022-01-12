@@ -108,5 +108,7 @@ def get_all_assets(request):
 
     email = request.query_params.get('email')
     tmp_user = user.objects.get(user_email=email)
-    result = user_asset.objects.filter(user=tmp_user).values('id', 'asset_name', 'description')
+    assets = user_asset.objects.filter(user=tmp_user, is_generation=0).values('id', 'asset_name', 'description')
+    generations = user_asset.objects.filter(user=tmp_user, is_generation=1).values('id', 'asset_name', 'description', 'declination', 'azimuth', 'modules_power')
+    result = {"assets": assets, "generations": generations}
     return Response(result)
