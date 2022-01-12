@@ -21,6 +21,7 @@ class user_asset(models.Model):
     declination = models.FloatField(default=0 ,blank=True)
     azimuth = models.FloatField(default=0 ,blank=True)
     modules_power = models.FloatField(default=0 ,blank=True)
+    is_generation = models.BooleanField(default=False)
 
     def __str__(self):
         return self.asset_name
