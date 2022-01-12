@@ -64,6 +64,26 @@ def getAllUsers(request):
         res.append(model_to_dict(r))
     return Response(res)
 
+@api_view(['GET'])
+def get_user(request):
+    params = ["email"]
+    #Check for Required Fields
+    for p in params:
+        if request.query_params.get(p, None) == None:
+            return Response(
+                {"message": "Missing Required Parameters: {}".format(p)}, 
+                status = 400)
+
+    #Check for Invalid Parameters
+    if verify(request.query_params, params): 
+        return Response(
+            {"message": "Request has invalid parameter not in {}".format(params)}, 
+            status = 400)
+
+    email = request.query_params.get('email')
+    tmp_user = user.objects.get(user_email=email)
+    return Response(model_to_dict(tmp_user))
+
 @api_view(['POST'])
 def register_user(request):
     if request.method == 'POST':
