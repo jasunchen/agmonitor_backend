@@ -56,7 +56,7 @@ class asset_dataTestCase(TestCase):
         user.objects.create(user_email="test@ucsb.edu")
         user1 = user.objects.get(user_email="test@ucsb.edu")
         user_asset.objects.create(user=user1, asset_name="test_asset_data", description="test", is_generation=0)
-        res = self.client.get('/getUserAsset?email=test@ucsb.edu')
+        res = self.client.get('/get_all_assets?email=test@ucsb.edu')
         self.id = res.data['assets'][0]['id']
 
     def test_get_asset_data(self):
