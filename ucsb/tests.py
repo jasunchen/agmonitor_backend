@@ -22,30 +22,30 @@ class user_assetTestCase(TestCase):
     def test_get_user_asset(self):
         user1 = user.objects.get(user_email="test@ucsb.edu")
         user_asset.objects.create(user=user1, asset_name="test_asset", description="test", is_generation=0)
-        response = self.client.get('/getUserAsset?email=test@ucsb.edu')
+        response = self.client.get('/get_all_assets?email=test@ucsb.edu')
         self.assertEqual(response.data['assets'][0]['asset_name'], "test_asset")
         self.assertEqual(response.data['assets'][0]['description'], "test")
     
     def test_add_user_asset(self):
         self.client.post('/addUserAsset', {'email': 'test@ucsb.edu', 'name': 'test_asset', 'description': 'test', 'is_generation': 0}, format='json')
-        response = self.client.get('/getUserAsset?email=test@ucsb.edu')
+        response = self.client.get('/get_all_assets?email=test@ucsb.edu')
         self.assertEqual(response.data['assets'][0]['asset_name'], "test_asset")
         self.assertEqual(response.data['assets'][0]['description'], "test")
     
     def test_delete_user_asset(self):
         user1 = user.objects.get(user_email="test@ucsb.edu")
         user_asset.objects.create(user=user1, asset_name="test_asset", description="test", is_generation=0)
-        response = self.client.get('/getUserAsset?email=test@ucsb.edu')
+        response = self.client.get('/get_all_assets?email=test@ucsb.edu')
         self.client.delete('/deleteUserAsset', {'id' : response.data['assets'][0]['id']}, format='json')
-        response = self.client.get('/getUserAsset?email=test@ucsb.edu')
+        response = self.client.get('/get_all_assets?email=test@ucsb.edu')
         self.assertEqual(len(response.data['assets']), 0)
 
     def test_update_user_asset(self):
         user1 = user.objects.get(user_email="test@ucsb.edu")
         user_asset.objects.create(user=user1, asset_name="test_asset", description="test")
-        res = self.client.get('/getUserAsset?email=test@ucsb.edu')
+        res = self.client.get('/get_all_assets?email=test@ucsb.edu')
         response = self.client.post('/updateUserAsset', {'id': res.data['assets'][0]['id'], 'name': 'test_asset_updated', 'description': 'test_updated', 'is_generation': 0}, format='json')
-        response = self.client.get('/getUserAsset?email=test@ucsb.edu')
+        response = self.client.get('/get_all_assets?email=test@ucsb.edu')
         self.assertEqual(response.data['assets'][0]['asset_name'], "test_asset_updated")
         self.assertEqual(response.data['assets'][0]['description'], "test_updated")
     
