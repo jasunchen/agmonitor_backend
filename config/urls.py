@@ -6,6 +6,7 @@ from django.views import defaults as default_views
 from django.views.generic import TemplateView
 from rest_framework.authtoken.views import obtain_auth_token
 from ucsb.repository.user_repository import getAllUsers, edit_user, register_user
+from ucsb.repository.weather_repository import get_alerts
 from ucsb.repository.asset_repository import add_asset, update_asset, delete_asset, get_all_assets
 from ucsb.repository.asset_data_repository import add_asset_data, delete_asset_data, get_asset_data
 
@@ -41,9 +42,11 @@ urlpatterns += [
     path("getAssetData", get_asset_data),
     path("getUser/", getAllUsers),
     path("editUser/", edit_user),
+    path("getAlerts", get_alerts),
+    # path("create_asset/",create_asset),
+    # path("create_asset_data/",create_asset_data),
 
-    path("create_asset/",create_asset),
-    path("create_asset_data/",create_asset_data),
+
 ]
 
 if settings.DEBUG:
