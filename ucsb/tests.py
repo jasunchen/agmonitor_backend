@@ -21,33 +21,33 @@ class user_assetTestCase(TestCase):
 
     def test_get_user_asset(self):
         user1 = user.objects.get(user_email="test@ucsb.edu")
-        user_asset.objects.create(user=user1, asset_name="test_asset", description="test", is_generation=0)
+        user_asset.objects.create(user=user1, asset_name="test_asset", description="test", type_of_asset="base")
         response = self.client.get('/getAllAssets?email=test@ucsb.edu')
-        self.assertEqual(response.data['assets'][0]['asset_name'], "test_asset")
-        self.assertEqual(response.data['assets'][0]['description'], "test")
+        self.assertEqual(response.data['base'][0]['asset_name'], "test_asset")
+        self.assertEqual(response.data['base'][0]['description'], "test")
     
     def test_add_user_asset(self):
-        self.client.post('/addUserAsset', {'email': 'test@ucsb.edu', 'name': 'test_asset', 'description': 'test', 'is_generation': 0}, format='json')
+        self.client.post('/addUserAsset', {'email': 'test@ucsb.edu', 'name': 'test_asset', 'description': 'test', 'type_of_asset': 'base'}, format='json')
         response = self.client.get('/getAllAssets?email=test@ucsb.edu')
-        self.assertEqual(response.data['assets'][0]['asset_name'], "test_asset")
-        self.assertEqual(response.data['assets'][0]['description'], "test")
+        self.assertEqual(response.data['base'][0]['asset_name'], "test_asset")
+        self.assertEqual(response.data['base'][0]['description'], "test")
     
     def test_delete_user_asset(self):
         user1 = user.objects.get(user_email="test@ucsb.edu")
-        user_asset.objects.create(user=user1, asset_name="test_asset", description="test", is_generation=0)
+        user_asset.objects.create(user=user1, asset_name="test_asset", description="test", type_of_asset='base')
         response = self.client.get('/getAllAssets?email=test@ucsb.edu')
-        self.client.delete('/deleteUserAsset', {'id' : response.data['assets'][0]['id']}, format='json')
+        self.client.delete('/deleteUserAsset', {'id' : response.data['base'][0]['id']}, format='json')
         response = self.client.get('/getAllAssets?email=test@ucsb.edu')
-        self.assertEqual(len(response.data['assets']), 0)
+        self.assertEqual(len(response.data['base']), 0)
 
     def test_update_user_asset(self):
         user1 = user.objects.get(user_email="test@ucsb.edu")
         user_asset.objects.create(user=user1, asset_name="test_asset", description="test")
         res = self.client.get('/getAllAssets?email=test@ucsb.edu')
-        response = self.client.post('/updateUserAsset', {'id': res.data['assets'][0]['id'], 'name': 'test_asset_updated', 'description': 'test_updated', 'is_generation': 0}, format='json')
+        response = self.client.post('/updateUserAsset', {'id': res.data['base'][0]['id'], 'name': 'test_asset_updated', 'description': 'test_updated', 'type_of_asset': 'base'}, format='json')
         response = self.client.get('/getAllAssets?email=test@ucsb.edu')
-        self.assertEqual(response.data['assets'][0]['asset_name'], "test_asset_updated")
-        self.assertEqual(response.data['assets'][0]['description'], "test_updated")
+        self.assertEqual(response.data['base'][0]['asset_name'], "test_asset_updated")
+        self.assertEqual(response.data['base'][0]['description'], "test_updated")
     
 
 class asset_dataTestCase(TestCase):
@@ -55,9 +55,9 @@ class asset_dataTestCase(TestCase):
         self.client = APIClient()
         user.objects.create(user_email="test@ucsb.edu")
         user1 = user.objects.get(user_email="test@ucsb.edu")
-        user_asset.objects.create(user=user1, asset_name="test_asset_data", description="test", is_generation=0)
+        user_asset.objects.create(user=user1, asset_name="test_asset_data", description="test")
         res = self.client.get('/getAllAssets?email=test@ucsb.edu')
-        self.id = res.data['assets'][0]['id']
+        self.id = res.data['base'][0]['id']
 
     def test_get_asset_data(self):
         asset = user_asset.objects.get(asset_name="test_asset_data")
