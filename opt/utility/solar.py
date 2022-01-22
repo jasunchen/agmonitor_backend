@@ -18,4 +18,4 @@ if __name__ == "__main__":
     declination = 0
     azimuth = 0
     power = 100
-    print(getSolarData(latitude, longitude, declination, azimuth, power))
+    print(getSolarData(latitude, longitude, declination, azimuth, power)[1])
