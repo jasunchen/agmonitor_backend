@@ -47,12 +47,9 @@ urlpatterns += [
     # path("create_asset_data/",create_asset_data),
 
 
-<<<<<<< HEAD
     path("create_asset/",create_asset),
     path("create_asset_data/",create_asset_data),
     path("postEmail", post_email)
-=======
->>>>>>> 3a45b5f79a0671c098b0dd964a6de6374af4a1a8
 ]
 
 if settings.DEBUG:
