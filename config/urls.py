@@ -5,8 +5,8 @@ from django.urls import include, path
 from django.views import defaults as default_views
 from django.views.generic import TemplateView
 from rest_framework.authtoken.views import obtain_auth_token
-from ucsb.repository.user_repository import getAllUsers, edit_user, register_user
-from ucsb.repository.asset_repository import add_asset, update_asset, delete_asset, get_all_assets
+from ucsb.repository.asset_repository import add_asset, update_asset, delete_asset, get_all_assets, get_single_asset
+from ucsb.repository.user_repository import getAllUsers, update_user, register_user, get_user, post_email
 from ucsb.repository.asset_data_repository import add_asset_data, delete_asset_data, get_asset_data
 
 urlpatterns = [
@@ -44,6 +44,7 @@ urlpatterns += [
 
     path("create_asset/",create_asset),
     path("create_asset_data/",create_asset_data),
+    path("postEmail", post_email)
 ]
 
 if settings.DEBUG:
