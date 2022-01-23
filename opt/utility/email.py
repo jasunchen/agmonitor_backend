@@ -13,8 +13,8 @@ def send_email(sender, password, receiver):
         server.sendmail(sender, receiver, message)
         print("success")
 
-# if __name__ == "__main__":
-sender = "yuyuanwang1999@gmail.com"
-password = "ytpuqhpomlekpeqh"
-receiver = "kaiwen_li@ucsb.edu"
-send_email(sender, password, receiver)
+if __name__ == "__main__":
+    sender = "yuyuanwang1999@gmail.com"
+    password = "ytpuqhpomlekpeqh"
+    receiver = "kaiwen_li@ucsb.edu"
+    send_email(sender, password, receiver)
