@@ -10,6 +10,10 @@ class user(models.Model):
     hours_of_power = models.IntegerField(default=0)
     longitude = models.FloatField(default=34.4208)
     latitude = models.FloatField(default=-119.6982)
+    shutoff_risk = models.FloatField(default=0)
+    pred_solar_generation = models.FloatField(default=0)
+    pred_opt_threshold = models.FloatField(default=0)
+    should_charge = models.BooleanField(default=True)
 
     def __str__(self):
         return self.user_email
@@ -18,10 +22,13 @@ class user_asset(models.Model):
     user = models.ForeignKey(user, on_delete=models.DO_NOTHING)
     description = models.TextField(max_length=254 ,blank=True)
     asset_name = models.CharField(max_length=254, blank=True)
+    type_of_asset = models.CharField(max_length=100, default="base")
     declination = models.FloatField(default=0 ,blank=True)
     azimuth = models.FloatField(default=0 ,blank=True)
     modules_power = models.FloatField(default=0 ,blank=True)
-    is_generation = models.BooleanField(default=False)
+    start_charge_time = models.IntegerField(default=0)
+    end_charge_time = models.IntegerField(default=0)
+    
 
     def __str__(self):
         return self.asset_name
