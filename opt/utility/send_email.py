@@ -1,10 +1,13 @@
 import smtplib, ssl
 
-def send_email(sender, password, receiver):
+def send_email(receiver):
+    sender = "yuyuanwang1999@gmail.com"
+    password = "ytpuqhpomlekpeqh"
     port = 465  # For SSL
     smtp_server = "smtp.gmail.com"
     messages = """\
     Subject: Hi there
+
     This message is sent from Python."""
 
     try:
@@ -18,7 +21,5 @@ def send_email(sender, password, receiver):
 
 
 if __name__ == "__main__":
-    sender = "yuyuanwang1999@gmail.com"
-    password = "ytpuqhpomlekpeqh"
     receiver = "kaiwen_li@ucsb.edu"
-    send_email(sender, password, receiver)
+    send_email(receiver)
