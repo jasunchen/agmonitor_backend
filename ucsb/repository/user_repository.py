@@ -131,5 +131,4 @@ def calculate(request):
     latitude = tmp_user.latitude
     alert = get_alerts(latitude, longitude)
     risk = calculate_shutOffRisk(alert)
-
-
+    
