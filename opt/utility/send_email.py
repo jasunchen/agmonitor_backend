@@ -1,4 +1,3 @@
-from email import message
 import smtplib, ssl
 
 def send_email(sender, password, receiver):
@@ -8,11 +7,14 @@ def send_email(sender, password, receiver):
     Subject: Hi there
     This message is sent from Python."""
 
-    context = ssl.create_default_context()
-    with smtplib.SMTP_SSL(smtp_server, port, context=context) as server:
-        server.login(sender, password)
-        server.sendmail(sender, receiver, messages)
-        print("Email sent successfully")
+    try:
+        context = ssl.create_default_context()
+        with smtplib.SMTP_SSL(smtp_server, port, context=context) as server:
+            server.login(sender, password)
+            server.sendmail(sender, receiver, messages)
+            print("Email sent successfully")
+    except Exception as e:
+        print(e)
 
 
 if __name__ == "__main__":
