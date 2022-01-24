@@ -7,7 +7,6 @@ FROM python:${PYTHON_VERSION} as python
 FROM python as python-build-stage
 
 ARG BUILD_ENVIRONMENT=local
-
 # Install apt packages
 RUN apt-get update && apt-get install --no-install-recommends -y \
   # dependencies for building Python packages
@@ -17,7 +16,6 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
 
 # Requirements are installed here to ensure they will be cached.
 COPY ./requirements .
-
 # Create Python Dependency and Sub-Dependency Wheels.
 RUN pip wheel --wheel-dir /usr/src/app/wheels  \
   -r ${BUILD_ENVIRONMENT}.txt
@@ -34,7 +32,6 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV BUILD_ENV ${BUILD_ENVIRONMENT}
 
 WORKDIR ${APP_HOME}
-
 # Install required system dependencies
 RUN apt-get update && apt-get install --no-install-recommends -y \
   # psycopg2 dependencies
