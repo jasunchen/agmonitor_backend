@@ -2,6 +2,20 @@ from scipy.optimize import linprog
 import numpy as np
 
 
+# alerts: an array severity rankings
+def calculate_shutOffRisk(alerts):
+    risk = 0
+    for alert in alerts:
+        if alert == 1 or alert == "Advisory":
+            risk += 0.1
+        elif alert == 2 or alert == "Watch":
+            risk += 0.34
+        elif alert == 3 or alert == "Warning":
+            risk += 0.67
+    return min(1, risk)
+
+def calculate_idealReserveThreshold(numberOfHours, avgBaseload, batterySize):
+    return min(1,(numberOfHours * avgBaseload) / batterySize)
 
 # alerts: an array severity rankings
 def calculate_shutOffRisk(alerts):
