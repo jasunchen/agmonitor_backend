@@ -13,8 +13,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Build the Docker image
-      run: |
-        docker-compose -f local.yml build
+      run: docker-compose -f local.yml build
 
   tests:
 
@@ -24,4 +23,3 @@ jobs:
     - uses: actions/checkout@v2
     - name: Tests
       run: docker-compose -f local.yml run --rm django pytest
-

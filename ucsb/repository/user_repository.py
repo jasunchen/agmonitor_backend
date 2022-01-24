@@ -3,10 +3,6 @@ from rest_framework.response import Response
 from django.forms.models import model_to_dict
 from rest_framework.decorators import api_view
 from ucsb.repository.helpers import *
-from opt.optimization import *
-from opt.utility.weather import *
-# from ucsb.repository.helpers import *
-import smtplib, ssl
 
 
 @api_view(['POST', 'DELETE'])
@@ -103,52 +99,3 @@ def register_user(request):
            return Response({"detail": "User created successfully"}, status=200)
     else:
         return Response({"detail": "Error: Invalid request"}, status=400)
-
-
-@api_view(['POST'])
-def calculate(request):
-    params = ["email"]
-    #Check for Required Fields
-    for p in params:
-        if request.query_params.get(p, None) == None:
-            return Response(
-                {"message": "Missing Required Parameters: {}".format(p)}, 
-                status = 400)
-
-    #Check for Invalid Parameters
-    if verify(request.query_params, params): 
-        return Response(
-            {"message": "Request has invalid parameter not in {}".format(params)}, 
-            status = 400)
-
-    email = request.query_params.get('email')
-    tmp_user = user.objects.get(user_email=email)
-
-    low_limit = tmp_user.low_limit
-    max_limit = tmp_user.max_limit
-    battery_size = tmp_user.battery_size
-    cost_or_shutoff = tmp_user.cost_or_shutoff
-    hours_of_power = tmp_user.hours_of_power
-    longitude = tmp_user.longitude
-    latitude = tmp_user.latitude
-    alert = get_alerts(latitude, longitude)
-    risk = calculate_shutOffRisk(alert)
-    
-@api_view(['POST'])
-def post_email(request):
-    if request.method == 'POST':
-        receiver_email = request.data.get('email')
-        port = 465  # For SSL
-        smtp_server = "smtp.gmail.com"
-        sender_email = "yuyuanwang1999@gmail.com"
-        password = "ytpuqhpomlekpeqh"
-        message = """\
-        Subject: Hi there
-
-        This message is sent from Python."""
-
-        context = ssl.create_default_context()
-        with smtplib.SMTP_SSL(smtp_server, port, context=context) as server:
-            server.login(sender_email, password)
-            server.sendmail(sender_email, receiver_email, message)
-            return Response({"detail": "User send email successfully"}, status=200)
