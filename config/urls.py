@@ -9,6 +9,7 @@ from ucsb.repository.asset_repository import add_asset, update_asset, delete_ass
 from ucsb.repository.user_repository import getAllUsers, update_user, register_user, get_user, post_email
 from ucsb.repository.weather_repository import get_alerts
 from ucsb.repository.asset_data_repository import add_asset_data, delete_asset_data, get_asset_data
+from opt.base_load import test_optimization
 
 urlpatterns = [
     path("", TemplateView.as_view(template_name="pages/home.html"), name="home"),
@@ -51,7 +52,8 @@ urlpatterns += [
 
     # path("create_asset/",create_asset),
     # path("create_asset_data/",create_asset_data),
-    path("postEmail", post_email)
+    path("postEmail", post_email),
+    path("test", test_optimization),
 ]
 
 if settings.DEBUG:
