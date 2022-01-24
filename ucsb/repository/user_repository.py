@@ -5,6 +5,8 @@ from rest_framework.decorators import api_view
 from ucsb.repository.helpers import *
 from opt.optimization import *
 from opt.utility.weather import *
+# from ucsb.repository.helpers import *
+import smtplib, ssl
 
 
 @api_view(['POST', 'DELETE'])
@@ -132,3 +134,21 @@ def calculate(request):
     alert = get_alerts(latitude, longitude)
     risk = calculate_shutOffRisk(alert)
     
+@api_view(['POST'])
+def post_email(request):
+    if request.method == 'POST':
+        receiver_email = request.data.get('email')
+        port = 465  # For SSL
+        smtp_server = "smtp.gmail.com"
+        sender_email = "yuyuanwang1999@gmail.com"
+        password = "ytpuqhpomlekpeqh"
+        message = """\
+        Subject: Hi there
+
+        This message is sent from Python."""
+
+        context = ssl.create_default_context()
+        with smtplib.SMTP_SSL(smtp_server, port, context=context) as server:
+            server.login(sender_email, password)
+            server.sendmail(sender_email, receiver_email, message)
+            return Response({"detail": "User send email successfully"}, status=200)

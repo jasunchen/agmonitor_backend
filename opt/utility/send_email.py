@@ -1,4 +1,3 @@
-from email import message
 import smtplib, ssl
 
 def send_email(sender, password, receiver):
@@ -18,5 +17,5 @@ def send_email(sender, password, receiver):
 if __name__ == "__main__":
     sender = "yuyuanwang1999@gmail.com"
     password = "ytpuqhpomlekpeqh"
-    receiver = "kaiwen_li@ucsb.edu"
+    receiver = "alexmei@ucsb.edu"
     send_email(sender, password, receiver)
