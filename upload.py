@@ -4,7 +4,7 @@ import json
 
 from calendar import timegm
 
-ASSET_ID =  2
+ASSET_ID =  1
 FILE_NAME = "subset.csv"
 
 file = open(FILE_NAME, "r").read()
@@ -25,7 +25,7 @@ headers = {'content-type' : 'application/json'}
 for i in range(9):
         response = requests.post(
                 headers=headers,
-                url='https://agmonitor-pina-colada-back.herokuapp.com/createAssetData', 
+                url='http://0.0.0.0:8000/createAssetData', 
                 json={"id" : ASSET_ID,
                         "data" : lyst[1000*i : 1000*(i+1)]})
 
