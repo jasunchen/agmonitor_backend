@@ -46,8 +46,6 @@ def find_optimal_threshold(weight1, weight2, lowerLimit, maximumLimit, shutOffRi
     bnd = [(0, maximumLimit)]  # Bounds of x
     opt = linprog(c=obj, A_ub=lhs_ineq, b_ub=rhs_ineq, bounds=bnd, method="revised simplex")
     return opt["x"]
-
-
 if __name__ == "__main__":
 
     weight1 = 0.4
@@ -56,5 +54,5 @@ if __name__ == "__main__":
     maximumLimit = 90
     shutOffRisk = 0.9
     idealReserveThreshold = 80
-    print(calculate_shutOffRisk([]))
+    print(calculate_shutOffRisk([1,2,"Warning"]))
     print(find_optimal_threshold(weight1, weight2, lowerLimit, maximumLimit, shutOffRisk,idealReserveThreshold))

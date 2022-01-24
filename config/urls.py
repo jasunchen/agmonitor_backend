@@ -6,10 +6,8 @@ from django.views import defaults as default_views
 from django.views.generic import TemplateView
 from rest_framework.authtoken.views import obtain_auth_token
 from ucsb.repository.asset_repository import add_asset, update_asset, delete_asset, get_all_assets, get_single_asset
-from ucsb.repository.user_repository import getAllUsers, update_user, register_user, get_user, post_email
-from ucsb.repository.weather_repository import get_alerts
+from ucsb.repository.user_repository import getAllUsers, update_user, register_user, get_user
 from ucsb.repository.asset_data_repository import add_asset_data, delete_asset_data, get_asset_data
-from opt.base_load import test_optimization
 
 urlpatterns = [
     path("", TemplateView.as_view(template_name="pages/home.html"), name="home"),
@@ -43,17 +41,6 @@ urlpatterns += [
     path("updateAssetData", update_asset),
     path("deleteAssetData", delete_asset_data),
     path("getAssetData", get_asset_data),
-    path("getUser/", getAllUsers),
-    path("editUser/", update_user),
-    path("getAlerts", get_alerts),
-    # path("create_asset/",create_asset),
-    # path("create_asset_data/",create_asset_data),
-
-
-    # path("create_asset/",create_asset),
-    # path("create_asset_data/",create_asset_data),
-    path("postEmail", post_email),
-    path("test", test_optimization),
 ]
 
 if settings.DEBUG:
