@@ -1,9 +1,7 @@
 from scipy.optimize import linprog
 import numpy as np
 import random
-import matplotlib.pyplot as plt
-
-# from base_load import calculate_base_load
+#from base_load import calculate_base_load
 
 
 
@@ -141,7 +139,7 @@ def find_optimal_threshold(userProfile: UserProfile):
         # print(best_eval, candidate_eval)
         if candidate_eval < best_eval:
             best, best_eval = candidate, candidate_eval
-            print('>%d cost(%s) = %.5f' % (i, best, best_eval))
+            #print('>%d cost(%s) = %.5f' % (i, best, best_eval))
         diff = candidate_eval - curr_eval
         t = temp / float(i + 1)
         metropolis = np.exp(-diff / t)
@@ -173,7 +171,6 @@ if __name__ == "__main__":
 
     #print(calculate_shutOffRisk([]))
     #print(calculate_base_load("jasun_chen@ucsb.edu", 0, 100000))
-    #print(find_optimal_threshold(weight1, weight2, lowerLimit, maximumLimit, shutOffRisk,idealReserveThreshold))
 
 
     # [['2022-01-25 06:54:00', 0], ['2022-01-25 06:57:00', 20], ['2022-01-25 07:00:00', 111], 
