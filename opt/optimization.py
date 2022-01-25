@@ -3,8 +3,6 @@ import numpy as np
 import random
 #from base_load import calculate_base_load
 
-
-
 class UserProfile:
   def __init__(self, weight1, weight2, lowerLimit, maximumLimit, shutOffRisk, idealReserveThreshold, solarForecast, baseForecast, currentBatteryState, batterySize):
     self.weight1 = weight1
@@ -17,23 +15,6 @@ class UserProfile:
     self.baseForecast = baseForecast
     self.currentBatteryState = currentBatteryState
     self.batterySize = batterySize
-
-
-
-# alerts: an array severity rankings
-def calculate_shutOffRisk(alerts):
-    risk = 0
-    for alert in alerts:
-        if alert == 1 or alert == "Advisory":
-            risk += 0.1
-        elif alert == 2 or alert == "Watch":
-            risk += 0.34
-        elif alert == 3 or alert == "Warning":
-            risk += 0.67
-    return min(1, risk)
-
-def calculate_idealReserveThreshold(numberOfHours, avgBaseload, batterySize):
-    return min(1,(numberOfHours * avgBaseload) / batterySize)
 
 # alerts: an array severity rankings
 def calculate_shutOffRisk(alerts):
@@ -120,7 +101,6 @@ def thresholdCost(userProfile: UserProfile, threshold):
 
     return userProfile.weight1*costGrid + (1-userProfile.weight1)* costShutOff + userProfile.weight2 * costRenewableIntegration
 
-
 def find_optimal_threshold(userProfile: UserProfile):
     step_size = 20
     temp = 10
@@ -148,11 +128,9 @@ def find_optimal_threshold(userProfile: UserProfile):
 
     return [best, best_eval]
 
-
-
 if __name__ == "__main__":
 
-    weight1 = 0.5 #importance of cost over shutoff (0 is no consideration for cost, 1 is only consider cost)
+    weight1 = 0.7 #importance of cost over shutoff (0 is no consideration for cost, 1 is only consider cost)
     weight2 = 0.6
     lowerLimit = 10
     maximumLimit = 90
@@ -163,7 +141,6 @@ if __name__ == "__main__":
     baseForecast = [80000]*192
     currentBatteryState = 14000
     batterySize = 14000
-
 
     best, score = find_optimal_threshold(UserProfile(weight1, weight2, lowerLimit, maximumLimit, shutOffRisk, idealReserveThreshold, solarForecast, baseForecast, currentBatteryState, batterySize))
 
