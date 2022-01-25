@@ -13,7 +13,7 @@ def getSolarData(latitude: float, longitude: float, declination: float, azimuth:
 
     if response['message']['code'] == 0:
         result = [[15 * t, 0] for t in range(192)]
-        data = [[convertTime(k), v] for k, v in response['result']['watt_hours'].items()]
+        data = [[convertTime(k), v / 1000] for k, v in response['result']['watt_hours'].items()]
         
         # offset for odd / even days
         offset = 86400 if data[0][0] % 172800 >= 86400 else 0
