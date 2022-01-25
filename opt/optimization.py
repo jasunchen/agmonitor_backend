@@ -114,9 +114,7 @@ def find_optimal_threshold(userProfile: UserProfile):
         candidate = max(lowerLimit, candidate)
         candidate = min(maximumLimit, candidate)
         candidate_eval = thresholdCost(userProfile, candidate)
-       # print(candidate, candidate_eval)
 
-        # print(best_eval, candidate_eval)
         if candidate_eval < best_eval:
             best, best_eval = candidate, candidate_eval
             #print('>%d cost(%s) = %.5f' % (i, best, best_eval))
