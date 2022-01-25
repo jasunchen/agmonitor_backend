@@ -111,18 +111,18 @@ def optimization(request):
     params = ["email"]
     #Check for Required Fields
     for p in params:
-        if request.query_params.get(p, None) == None:
+        if request.data.get(p, None) == None:
             return Response(
                 {"message": "Missing Required Parameters: {}".format(p)}, 
                 status = 400)
 
     #Check for Invalid Parameters
-    if verify(request.query_params, params): 
+    if verify(request.data, params): 
         return Response(
             {"message": "Request has invalid parameter not in {}".format(params)}, 
             status = 400)
-    
-    email = request.query_params.get('email')
+
+    email = request.data.get('email')
     tmp_user = user.objects.get(user_email=email)
 
     low_limit = tmp_user.low_limit
