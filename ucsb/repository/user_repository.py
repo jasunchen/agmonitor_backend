@@ -4,6 +4,7 @@ from django.forms.models import model_to_dict
 from rest_framework.decorators import api_view
 from ucsb.repository.helpers import *
 from opt.optimization import *
+from opt.base_load import *
 from opt.utility.weather import *
 # from ucsb.repository.helpers import *
 import smtplib, ssl
@@ -106,22 +107,22 @@ def register_user(request):
 
 
 @api_view(['POST'])
-def calculate(request):
+def optimization(request):
     params = ["email"]
     #Check for Required Fields
     for p in params:
-        if request.query_params.get(p, None) == None:
+        if request.data.get(p, None) == None:
             return Response(
                 {"message": "Missing Required Parameters: {}".format(p)}, 
                 status = 400)
 
     #Check for Invalid Parameters
-    if verify(request.query_params, params): 
+    if verify(request.data, params): 
         return Response(
             {"message": "Request has invalid parameter not in {}".format(params)}, 
             status = 400)
 
-    email = request.query_params.get('email')
+    email = request.data.get('email')
     tmp_user = user.objects.get(user_email=email)
 
     low_limit = tmp_user.low_limit
@@ -133,6 +134,9 @@ def calculate(request):
     latitude = tmp_user.latitude
     alert = get_alerts(latitude, longitude)
     risk = calculate_shutOffRisk(alert)
+    return Response({"detail": "Success"}, status=200)
+    
+    
     
 @api_view(['POST'])
 def post_email(request):
