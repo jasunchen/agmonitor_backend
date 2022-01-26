@@ -161,8 +161,7 @@ def optimization(request):
     base_forecast = [item[1] for item in base_load]
     cur_battery = 14000
     best, score = find_optimal_threshold(UserProfile(weight1, weight2, low_limit, max_limit, risk, idealReserveThreshold, solar_forecast, base_forecast, cur_battery, battery_size))
-
-
+    tmp_user.pred_opt_threshold = best
     return Response({"detail": best}, status=200)
     
     
