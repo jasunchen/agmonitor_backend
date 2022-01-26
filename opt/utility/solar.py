@@ -8,6 +8,7 @@ def getSolarData(latitude: float, longitude: float, declination: float, azimuth:
     response = requests.get(
         headers={'content-type' : 'application/json'},
         url='https://api.forecast.solar/estimate/{}/{}/{}/{}/{}'.format(latitude, longitude, declination, azimuth, power), 
+        verify=False
     )
     response = response.json()
 
