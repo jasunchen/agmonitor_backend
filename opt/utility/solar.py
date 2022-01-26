@@ -46,4 +46,9 @@ if __name__ == "__main__":
     declination = 0
     azimuth = 0
     power = 100
-    print(getSolarData(latitude, longitude, declination, azimuth, power))
+    # print(getSolarData(latitude, longitude, declination, azimuth, power))
+    solar = []
+    for i in range(0, 2866, 15):
+        solar.append([i, 0])
+    data = getSolarData(latitude, longitude, declination, azimuth, power)[1]
+    print(data)

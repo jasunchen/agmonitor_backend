@@ -8,13 +8,12 @@ def test_optimization(request):
     return Response({"detail": "success"}, status=200)
 
 
-def calculate_base_load(user_email, start_time, end_time):
+def calculate_base_load(tmp_user, start_time, end_time):
     # Construct Output Map
     time_map = { 15 * t : { "sum" : 0, "count" : 0 } for t in range(96)}
     
     try:
         # Get All Base Assets
-        tmp_user = user.objects.get(user_email=user_email)
         bases = user_asset.objects.filter(user=tmp_user, type_of_asset='base').values('id')
     
         # Get Data From Base Assets
