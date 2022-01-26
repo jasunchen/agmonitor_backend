@@ -126,43 +126,45 @@ def optimization(request):
     email = request.data.get('email')
     tmp_user = user.objects.get(user_email=email)
     generation_assets = user_asset.objects.filter(user=tmp_user, type_of_asset='generation')
-
-    low_limit = tmp_user.low_limit
-    max_limit = tmp_user.max_limit
-    battery_size = tmp_user.battery_size
-    cost_or_shutoff = tmp_user.cost_or_shutoff
-    hours_of_power = tmp_user.hours_of_power
-    longitude = tmp_user.longitude
-    latitude = tmp_user.latitude
-    alert = get_alerts(latitude, longitude)
-    risk = calculate_shutOffRisk(alert)
-    solar = []
-    for i in range(0, 2866, 15):
-        solar.append([i, 0])
-    for gen in generation_assets:
-        declination = gen.declination
-        azimuth = gen.azimuth
-        modules_power = gen.modules_power
-        data = getSolarData(latitude, longitude, declination, azimuth, modules_power)[1]
-        # print(data)
-        # data = json.loads(data)
-        for i in range(192):
-            solar[i][1] += data[i][1]
-    base_load = calculate_base_load(tmp_user, 0, 100000000000000000)
-    ave_base_load = 0
-    for i in range(96):
-        ave_base_load += base_load[i][1]
-    ave_base_load /= 96
-    idealReserveThreshold = calculate_idealReserveThreshold(hours_of_power, ave_base_load, battery_size)
-    base_load = base_load * 2
-    weight1 = 0.7
-    weight2 = 0.6
-    solar_forecast = [item[1] for item in solar]
-    base_forecast = [item[1] for item in base_load]
-    cur_battery = 14000
-    best, score = find_optimal_threshold(UserProfile(weight1, weight2, low_limit, max_limit, risk, idealReserveThreshold, solar_forecast, base_forecast, cur_battery, battery_size))
-    tmp_user.pred_opt_threshold = best
-    return Response({"detail": best}, status=200)
+    try:
+        low_limit = tmp_user.low_limit
+        max_limit = tmp_user.max_limit
+        battery_size = tmp_user.battery_size
+        cost_or_shutoff = tmp_user.cost_or_shutoff
+        hours_of_power = tmp_user.hours_of_power
+        longitude = tmp_user.longitude
+        latitude = tmp_user.latitude
+        alert = get_alerts(latitude, longitude)
+        risk = calculate_shutOffRisk(alert)
+        solar = []
+        for i in range(0, 2866, 15):
+            solar.append([i, 0])
+        for gen in generation_assets:
+            declination = gen.declination
+            azimuth = gen.azimuth
+            modules_power = gen.modules_power
+            data = getSolarData(latitude, longitude, declination, azimuth, modules_power)[1]
+            # print(data)
+            # data = json.loads(data)
+            for i in range(192):
+                solar[i][1] += data[i][1]
+        base_load = calculate_base_load(tmp_user, 0, 100000000000000000)
+        ave_base_load = 0
+        for i in range(96):
+            ave_base_load += base_load[i][1]
+        ave_base_load /= 96
+        idealReserveThreshold = calculate_idealReserveThreshold(hours_of_power, ave_base_load, battery_size)
+        base_load = base_load * 2
+        weight1 = 0.7
+        weight2 = 0.6
+        solar_forecast = [item[1] for item in solar]
+        base_forecast = [item[1] for item in base_load]
+        cur_battery = 14000
+        best, score = find_optimal_threshold(UserProfile(weight1, weight2, low_limit, max_limit, risk, idealReserveThreshold, solar_forecast, base_forecast, cur_battery, battery_size))
+        tmp_user.pred_opt_threshold = best
+    except Exception as e:
+        return Response({"detail": "Error: " + e})
+    return Response({"detail": "Succcess"}, status=200)
     
     
     
