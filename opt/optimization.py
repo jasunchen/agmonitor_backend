@@ -93,7 +93,7 @@ def thresholdCost(userProfile: UserProfile, threshold):
     #solarForecast -> 2 day forecasted solar production beginning from right now
     #batteryState -> batteryPercentage, maxCharge, maxDischarge
 
-    energyFlow = computeEnergyFlow(solarForecast, baseForecast)
+    energyFlow = computeEnergyFlow(userProfile.solarForecast, userProfile.baseForecast)
     thresholdWattHours = 0.01 *threshold*userProfile.batterySize #convert threshold percentage into watt hours
     costGrid, costRenewableIntegration, excessSolar, excessBattery = computePredictedBatteryChargeAndTotalCost(userProfile.currentBatteryState, energyFlow, thresholdWattHours, userProfile.batterySize)
     costShutOff = computeShutOffCost(userProfile.shutOffRisk, userProfile.idealReserveThreshold, threshold)
@@ -106,13 +106,13 @@ def find_optimal_threshold(userProfile: UserProfile):
     temp = 10
 
     initial_eval = thresholdCost(userProfile, userProfile.lowerLimit)
-    curr, curr_eval = lowerLimit, initial_eval
+    curr, curr_eval = userProfile.lowerLimit, initial_eval
     best, best_eval = curr, curr_eval
 
     for i in range(1000):
         candidate = curr + np.random.randn() * step_size
-        candidate = max(lowerLimit, candidate)
-        candidate = min(maximumLimit, candidate)
+        candidate = max(userProfile.lowerLimit, candidate)
+        candidate = min(userProfile.maximumLimit, candidate)
         candidate_eval = thresholdCost(userProfile, candidate)
 
         if candidate_eval < best_eval:
