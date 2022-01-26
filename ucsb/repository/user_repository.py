@@ -163,7 +163,7 @@ def optimization(request):
         best, score = find_optimal_threshold(UserProfile(weight1, weight2, low_limit, max_limit, risk, idealReserveThreshold, solar_forecast, base_forecast, cur_battery, battery_size))
         tmp_user.pred_opt_threshold = best
     except Exception as e:
-        return Response({"detail": "Error: " + e})
+        return Response({"detail": "Error: " + e}, status=400)
     return Response({"detail": "Succcess"}, status=200)
     
     
