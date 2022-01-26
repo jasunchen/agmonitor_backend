@@ -143,11 +143,11 @@ def optimization(request):
             declination = gen.declination
             azimuth = gen.azimuth
             modules_power = gen.modules_power
-            data = getSolarData(latitude, longitude, declination, azimuth, modules_power)[1]
-            # print(data)
-            # data = json.loads(data)
+            data = getSolarData(latitude, longitude, declination, azimuth, modules_power)
+            if data[0] == 400:
+                return Response({"Error": "{}".format(data[1])}, status=400)
             for i in range(192):
-                solar[i][1] += data[i][1]
+                solar[i][1] += data[1][i][1]
         base_load = calculate_base_load(tmp_user, 0, 100000000000000000)
         ave_base_load = 0
         for i in range(96):
@@ -162,8 +162,9 @@ def optimization(request):
         cur_battery = 14000
         best, score = find_optimal_threshold(UserProfile(weight1, weight2, low_limit, max_limit, risk, idealReserveThreshold, solar_forecast, base_forecast, cur_battery, battery_size))
         tmp_user.pred_opt_threshold = best
+        #send email
     except Exception as e:
-        return Response({"detail": "Error: " + e}, status=400)
+        return Response({"Error": str(e)}, status=400)
     return Response({"detail": "Succcess"}, status=200)
     
     
