@@ -7,6 +7,7 @@ from opt.optimization import *
 from opt.base_load import *
 from opt.utility.solar import *
 from opt.utility.weather import *
+from opt.utility.send_email import *
 # from ucsb.repository.helpers import *
 import smtplib, ssl
 
@@ -186,6 +187,7 @@ def optimization(request):
         #output acceptable boolean
         shouldCharge = should_charge(user_model, best_threshold, flexible_loads, user_preferred_schedule, best_schedule_score)
         tmp_user.should_charge = shouldCharge
+        send_email(tmp_user.user_email)
     
     except Exception as e:
         return Response({"Error": str(e)}, status=400)
