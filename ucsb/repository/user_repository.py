@@ -143,11 +143,11 @@ def optimization(request):
         declination = gen.declination
         azimuth = gen.azimuth
         modules_power = gen.modules_power
-        data = getSolarData(latitude, longitude, declination, azimuth, modules_power)[1]
-        # print(data)
-        # data = json.loads(data)
+        data = getSolarData(latitude, longitude, declination, azimuth, modules_power)
+        if data[0] == 200:
+            return Response({"Error": data[1]}, status=400)
         for i in range(192):
-            solar[i][1] += data[i][1]
+            solar[i][1] += data[1][i][1]
     base_load = calculate_base_load(tmp_user, 0, 100000000000000000)
     ave_base_load = 0
     for i in range(96):
@@ -163,6 +163,7 @@ def optimization(request):
 
     user_model = UserProfile(weight1, weight2, low_limit, max_limit, risk, idealReserveThreshold, solar_forecast, base_forecast, cur_battery, battery_size)
     best_threshold, best_score, best_solar, best_battery = find_optimal_threshold(user_model)
+    tmp_user.pred_opt_threshold = best_threshold
     
 
     #get user flexible loads (should pull from db and get required energy cost and duration of load)
@@ -172,15 +173,18 @@ def optimization(request):
 
     #output good times for user visualization
     good_times = find_good_times(best_solar, best_battery)
+    tmp_user.pred_good_time = json.dumps(good_times)
 
     #output ideal schedule
     best_schedule, best_schedule_score = find_optimal_fl_schedule(user_model, best_threshold, flexible_loads) #should return 2d array [ [1 (should charge), 20 (timeOfDay)], [0 (should not charge), 0 (irrelevant)]]
+    tmp_user.pred_best_schedule = json.dumps(best_schedule)
 
     #user preferred schedule
     user_preferred_schedule = [8, 21] #preferred start times for TeslaEV/etc pulled from database
 
     #output acceptable boolean
     shouldCharge = should_charge(user_model, best_threshold, flexible_loads, user_preferred_schedule, best_schedule_score)
+    tmp_user.should_charge = shouldCharge
 
 
     #return best_threshold, good_times, best_schedule, and should_charge
