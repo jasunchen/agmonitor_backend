@@ -166,8 +166,8 @@ def optimization(request):
     
 
     #get user flexible loads (should pull from db and get required energy cost and duration of load)
-    TeslaEV = FlexibleLoad(1000,3) #example
-    SomethingElse = FlexibleLoad(50000,23)
+    TeslaEV = FlexibleLoad("TeslaEV", 1000,3) #example
+    SomethingElse = FlexibleLoad("SomethingElse", 50000,23)
     flexible_loads = [TeslaEV, SomethingElse] #array of all user flexible loads
 
     #output good times for user visualization
