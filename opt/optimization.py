@@ -39,7 +39,7 @@ def calculate_shutOffRisk(alerts):
     return min(1, risk)
 
 def calculate_idealReserveThreshold(numberOfHours, avgBaseload, batterySize):
-    return min(1,(numberOfHours * avgBaseload) / batterySize)
+    return max(min(1,(numberOfHours * avgBaseload) / batterySize), 0.01)
 
 #solar and base should be 192 arrays of length 192 to represent 48 hour broken into 15 min intervals
 def computeEnergyFlow(solar, base):
