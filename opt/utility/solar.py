@@ -50,5 +50,5 @@ if __name__ == "__main__":
     solar = []
     for i in range(0, 2866, 15):
         solar.append([i, 0])
-    data = getSolarData(latitude, longitude, declination, azimuth, power)[1]
+    data = getSolarData(latitude, longitude, declination, azimuth, power)
     print(data)
