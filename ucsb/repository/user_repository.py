@@ -169,8 +169,8 @@ def optimization(request):
         
 
         #get user flexible loads (should pull from db and get required energy cost and duration of load)
-        TeslaEV = FlexibleLoad(1000,3) #example
-        SomethingElse = FlexibleLoad(50000,23)
+        TeslaEV = FlexibleLoad("Tesla EV",1000,3) #example
+        SomethingElse = FlexibleLoad("Something Else", 50000,23)
         flexible_loads = [TeslaEV, SomethingElse] #array of all user flexible loads
 
         #output good times for user visualization
@@ -187,7 +187,9 @@ def optimization(request):
         #output acceptable boolean
         shouldCharge = should_charge(user_model, best_threshold, flexible_loads, user_preferred_schedule, best_schedule_score)
         tmp_user.should_charge = shouldCharge
+        tmp_user.save()
         send_email(tmp_user.user_email)
+
     
     except Exception as e:
         return Response({"Error": str(e)}, status=400)
