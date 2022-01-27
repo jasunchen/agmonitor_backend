@@ -19,7 +19,8 @@ class UserProfile:
     self.batterySize = batterySize
 
 class FlexibleLoad:
-  def __init__(self, energyCost, duration):
+  def __init__(self, id, energyCost, duration):
+    self.id = id
     self.energyCost = energyCost
     self.duration = duration
 
@@ -145,7 +146,7 @@ def find_good_times(best_solar, best_battery):
 
 def find_optimal_fl_schedule(userProfile: UserProfile, threshold, flexibleLoads: List[FlexibleLoad]):
     #for best possible schedule & score
-    best_schedule = [[1,10],[0,0]]
+    best_schedule = [["Tesla EV", 1,10],["Something Else", 0,0]]
     best_eval = 0.871
     return [best_schedule, best_eval]
 
@@ -171,8 +172,8 @@ if __name__ == "__main__":
     best_threshold, best_score, best_solar, best_battery = find_optimal_threshold(user_model)
     
     #get user flexible loads (should pull from db and get required energy cost and duration of load)
-    TeslaEV = FlexibleLoad(1000,3) #example
-    SomethingElse = FlexibleLoad(50000,23)
+    TeslaEV = FlexibleLoad("Tesla EV", 1000,3) #example
+    SomethingElse = FlexibleLoad("Something Else", 50000,23)
     flexible_loads = [TeslaEV, SomethingElse] #array of all user flexible loads
 
     #output good times for user visualization
