@@ -160,10 +160,31 @@ def optimization(request):
     solar_forecast = [item[1] for item in solar]
     base_forecast = [item[1] for item in base_load]
     cur_battery = 14000
-    best, score = find_optimal_threshold(UserProfile(weight1, weight2, low_limit, max_limit, risk, idealReserveThreshold, solar_forecast, base_forecast, cur_battery, battery_size))
+
+    user_model = UserProfile(weight1, weight2, low_limit, max_limit, risk, idealReserveThreshold, solar_forecast, base_forecast, cur_battery, battery_size)
+    best_threshold, best_score, best_solar, best_battery = find_optimal_threshold(user_model)
+    
+
+    #get user flexible loads (should pull from db and get required energy cost and duration of load)
+    TeslaEV = FlexibleLoad("TeslaEV", 1000,3) #example
+    SomethingElse = FlexibleLoad("SomethingElse", 50000,23)
+    flexible_loads = [TeslaEV, SomethingElse] #array of all user flexible loads
+
+    #output good times for user visualization
+    good_times = find_good_times(best_solar, best_battery)
+
+    #output ideal schedule
+    best_schedule, best_schedule_score = find_optimal_fl_schedule(user_model, best_threshold, flexible_loads) #should return 2d array [ [1 (should charge), 20 (timeOfDay)], [0 (should not charge), 0 (irrelevant)]]
+
+    #user preferred schedule
+    user_preferred_schedule = [8, 21] #preferred start times for TeslaEV/etc pulled from database
+
+    #output acceptable boolean
+    shouldCharge = should_charge(user_model, best_threshold, flexible_loads, user_preferred_schedule, best_schedule_score)
 
 
-    return Response({"detail": best}, status=200)
+    #return best_threshold, good_times, best_schedule, and should_charge
+    return Response({"detail": best_threshold}, status=200)
     
     
     
