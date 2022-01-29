@@ -11,7 +11,7 @@ def send_email(receiver, message):
     msg.set_content(message)
 
     msg['Subject'] = 'Agmnitor Notification'
-    msg['From'] = sender
+    msg['From'] = "Agmonitor AutoNotification"
     msg['To'] = receiver
 
     # Send the message via our own SMTP server.
