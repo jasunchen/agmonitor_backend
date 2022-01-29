@@ -111,8 +111,9 @@ def thresholdCost(userProfile: UserProfile, threshold):
     costGrid, costRenewableIntegration, excessSolar, excessBattery = computePredictedBatteryChargeAndTotalCost(userProfile.currentBatteryState, energyFlow, threshold, userProfile.batterySize)
     costShutOff = computeShutOffCost(userProfile.shutOffRisk, userProfile.idealReserveThreshold, threshold)
 
+    cost = userProfile.weight1*costGrid + (1-userProfile.weight1)* costShutOff + userProfile.weight2 * costRenewableIntegration
 
-    return (userProfile.weight1*costGrid + (1-userProfile.weight1)* costShutOff + userProfile.weight2 * costRenewableIntegration, excessSolar, excessBattery)
+    return (cost, excessSolar, excessBattery)
 
 def find_optimal_threshold(userProfile: UserProfile):
     step_size = 20
@@ -140,9 +141,66 @@ def find_optimal_threshold(userProfile: UserProfile):
 
     return [best, best_eval, best_solar, best_battery]
 
-def flexibleLoadScheduleCost(userProfile: UserProfile, threshold, flexibleLoads: List[FlexibleLoad]):
-    return 0
+def flexibleLoadEnergyFlow(energyFlow, flexibleLoads: List[FlexibleLoad], schedule: List[List[int]]):
+    for i in range(len(flexibleLoads)):
+        loadCost = flexibleLoads[i].energyCost
+        duration = flexibleLoads[i].duration
+        isOn = schedule[i][1]
+        beginTime = schedule[i][2]
 
+        if isOn == 1:
+            avgConsumption = loadCost/duration
+            for t in range(beginTime, beginTime+duration):
+                energyFlow[t] += avgConsumption
+    return energyFlow
+
+def flexibleLoadScheduleCost(userProfile: UserProfile, threshold, energyFlow, flexibleLoads: List[FlexibleLoad], schedule: List[List[int]]):
+    #todo: use utility rate plan to determine exact costs
+    price = 1
+    costGrid = 0
+    costRenewableIntegration = 0
+
+    #todo: implement maxcharge/maxdischarge
+    maxCharge = 825 #watt hours per 15 min increment or ~3.3 kWh
+    maxDischarge = -1925 #watt hours per 15 min increment or ~7.7 kWh
+
+    excessSolar = [0]*192 #if solar generation is too high
+    excessBattery = [0]*192 #if battery storage is capped out
+
+    #keep track of maximum costs to minmax normalize values 
+    maxCostGrid = 0.01
+    maxCostRenewableIntegration = 0
+
+    thresholdWattHours = 0.01 *threshold*userProfile.maxStorage #convert threshold percentage into watt hours
+    minimumWattHours = 0.2*userProfile.maxStorage
+    currentCharge = userProfile.currentBatteryState
+
+    energyFlow = flexibleLoadEnergyFlow(energyFlow, flexibleLoads, schedule)
+
+    for index, e in enumerate(energyFlow):
+        #print("energyupdate", index, ": ", e,", currentCharge: ", currentCharge, ", costs:", costGrid, maxCostGrid, costGrid/maxCostGrid)
+        if (e > 0): #producing excess solar energy
+            currentCharge += min(e, maxCharge)
+            excessSolar[index] += max(0, e-maxCharge)
+            maxCostRenewableIntegration += e
+        else:
+            currentCharge += max(e, maxDischarge) #max to take less negative number
+            maxCostGrid += max(e, maxDischarge)*price
+
+        diff = currentCharge - thresholdWattHours if (index < 96) else currentCharge - minimumWattHours
+
+        if (diff < 0):
+            costGrid += diff*price
+            currentCharge -= diff #todo maxcharge
+        
+        if (currentCharge > userProfile.maxStorage): #wasted solar
+            excess = currentCharge - userProfile.maxStorage 
+            costRenewableIntegration += excess
+            excessBattery[index] += currentCharge
+            currentCharge -= excess
+
+    return (costGrid/maxCostGrid, costRenewableIntegration/maxCostRenewableIntegration, excessSolar, excessBattery)
+    
 def find_good_times(best_solar, best_battery):
     #for user visualization
     schedule = [1]*96
@@ -162,13 +220,13 @@ if __name__ == "__main__":
 
     weight1 = 0.7 #importance of cost over shutoff (0 is no consideration for cost, 1 is only consider cost)
     weight2 = 0.6
-    lowerLimit = 10
+    lowerLimit = 20
     maximumLimit = 90
-    shutOffRisk = 0.1
+    shutOffRisk = 0.2
     idealReserveThreshold = 80
 
     solarForecast = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10,10,10,10,40,60,80,100,15000,40579,71855, 80123, 90432, 100213, 123100, 130412, 123400, 102103, 105033, 90123, 70123, 15000, 5000,4000,3000,1999,500,50,10,10,10,10,10,10,10,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10,10,10,10,40,60,80,100,15000,40579,71855, 80123, 90432, 100213, 123100, 130412, 123400, 102103, 105033, 90123, 70123, 15000, 5000,4000,3000,1999,500,50,10,10,10,10,10,10,10,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-    baseForecast = [80000]*192
+    baseForecast = [20000]*192
     currentBatteryState = 14000
     batterySize = 14000
 
@@ -193,10 +251,10 @@ if __name__ == "__main__":
     shouldCharge = should_charge(user_model, best_threshold, flexible_loads, user_preferred_schedule, best_schedule_score)
 
 
-    print(good_times)
+    #print(good_times)
     print(best_threshold, best_score)
-    print(best_schedule, best_schedule_score)
-    print(shouldCharge)
+    #print(best_schedule, best_schedule_score)
+    #print(shouldCharge)
     #print(calculate_shutOffRisk([]))
     #print(calculate_base_load("jasun_chen@ucsb.edu", 0, 100000))
 
