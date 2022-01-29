@@ -200,7 +200,7 @@ def flexibleLoadScheduleCost(userProfile: UserProfile, threshold, energyFlow, fl
             currentCharge -= excess
 
     return (costGrid/maxCostGrid, costRenewableIntegration/maxCostRenewableIntegration, excessSolar, excessBattery)
-    
+
 def find_good_times(best_solar, best_battery):
     #for user visualization
     schedule = [1]*96
@@ -212,9 +212,13 @@ def find_optimal_fl_schedule(userProfile: UserProfile, threshold, flexibleLoads:
     best_eval = 0.871
     return [best_schedule, best_eval]
 
-def should_charge(userProfile: UserProfile, threshold, flexibleLoads: List[FlexibleLoad], schedule: List[List[int]], optimum: float):
+def should_charge(userProfile: UserProfile, threshold, flexibleLoads: List[FlexibleLoad], schedule: List[List[int]], optimum: float, energyFlow):
     #is given schedule close enough to optimum? 
-    return True
+    energyFlow = flexibleLoadEnergyFlow(energyFlow, flexibleLoads, schedule)
+    cost = flexibleLoadScheduleCost(userProfile, threshold, energyFlow, flexibleLoads, schedule)
+
+
+    return (cost-optimum <= 0.2)
 
 if __name__ == "__main__":
 
