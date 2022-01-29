@@ -31,6 +31,9 @@ class user_asset(models.Model):
     modules_power = models.FloatField(default=0 ,blank=True)
     start_charge_time = models.IntegerField(default=0)
     end_charge_time = models.IntegerField(default=0)
+    demand = models.TextField(max_length=2048 ,blank=True)
+    duration = models.TextField(max_length=2048 ,blank=True)
+    text = models.TextField(max_length=2048 ,blank=True)
     
 
     def __str__(self):

@@ -159,7 +159,7 @@ def get_all_assets(request):
     tmp_user = user.objects.get(user_email=email)
     bases = user_asset.objects.filter(user=tmp_user, type_of_asset='base').values('id', 'asset_name', 'description')
     generations = user_asset.objects.filter(user=tmp_user, type_of_asset='generation').values('id', 'asset_name', 'description', 'declination', 'azimuth', 'modules_power')
-    felxible_assets = user_asset.objects.filter(user=tmp_user, type_of_asset='flexible').values('id', 'asset_name', 'description', 'start_charge_time', 'end_charge_time')
+    felxible_assets = user_asset.objects.filter(user=tmp_user, type_of_asset='flexible').values('id', 'asset_name', 'description', 'start_charge_time', 'end_charge_time', 'duration', 'demand')
     result = {"base": bases, "generation": generations, "flexible": felxible_assets}
     return Response(result)
 
