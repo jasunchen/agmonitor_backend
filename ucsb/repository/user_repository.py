@@ -188,7 +188,7 @@ def optimization(request):
         shouldCharge = should_charge(user_model, best_threshold, flexible_loads, user_preferred_schedule, best_schedule_score)
         tmp_user.should_charge = shouldCharge
         tmp_user.save()
-        send_email(tmp_user.user_email)
+        send_email(tmp_user.user_email, "Test context")
 
     
     except Exception as e:
@@ -197,24 +197,3 @@ def optimization(request):
 
     #return best_threshold, good_times, best_schedule, and should_charge
     return Response({"detail": best_threshold}, status=200)
-    
-    
-    
-@api_view(['POST'])
-def post_email(request):
-    if request.method == 'POST':
-        receiver_email = request.data.get('email')
-        port = 465  # For SSL
-        smtp_server = "smtp.gmail.com"
-        sender_email = "yuyuanwang1999@gmail.com"
-        password = "ytpuqhpomlekpeqh"
-        message = """\
-        Subject: Hi there
-
-        This message is sent from Python."""
-
-        context = ssl.create_default_context()
-        with smtplib.SMTP_SSL(smtp_server, port, context=context) as server:
-            server.login(sender_email, password)
-            server.sendmail(sender_email, receiver_email, message)
-            return Response({"detail": "User send email successfully"}, status=200)

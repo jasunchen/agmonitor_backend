@@ -7,6 +7,7 @@ redis==3.5.3  # https://github.com/andymccurdy/redis-py
 hiredis==2.0.0  # https://github.com/redis/hiredis-py
 requests==2.7.0
 Scipy==1.7.0
+apscheduler==3.8.1
 
 # Django
 # ------------------------------------------------------------------------------
