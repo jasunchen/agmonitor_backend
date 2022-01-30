@@ -8,8 +8,8 @@ class UsersConfig(AppConfig):
 
     def ready(self):
         print("Scheduler is running")
-        from opt.utility.scheduler import opt_scheduler
-        opt_scheduler()
+        from opt.utility.scheduler import start
+        start()
         try:
             import agmonitor.users.signals  # noqa F401
         except ImportError:
