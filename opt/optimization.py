@@ -199,7 +199,8 @@ def flexibleLoadScheduleCost(userProfile: UserProfile, threshold, flexibleLoads:
             costRenewableIntegration += excess
             excessBattery[index] += currentCharge
             currentCharge -= excess
-    cost = userProfile.weight1*(costGrid/maxCostGrid) + userProfile.weight2 * (costRenewableIntegration/maxCostRenewableIntegration)
+    #print(costGrid/maxCostGrid,  costRenewableIntegration/maxCostRenewableIntegration)
+    cost = (costGrid/maxCostGrid) + (costRenewableIntegration/maxCostRenewableIntegration)
     return (cost, excessSolar, excessBattery)
 
 def find_good_times(best_solar, best_battery):
