@@ -122,7 +122,7 @@ def find_optimal_threshold(userProfile: UserProfile):
     initial_eval = thresholdCost(userProfile, userProfile.lowerLimit)[0]
     curr, curr_eval = userProfile.lowerLimit, initial_eval
     best, best_eval = curr, curr_eval
-    best_solar, best_battery = [],[]
+    best_solar, best_battery = [0]*96,[0]*96
 
     for i in range(1000):
         candidate = curr + np.random.randn() * step_size
@@ -210,7 +210,7 @@ def find_good_times(best_solar, best_battery):
         if (best_battery[i] > 0):
             for j in range(i+1):
                 schedule[j] += best_battery[i]/(i+1)
-    maxExcess = max(schedule)
+    maxExcess = max(schedule) + 0.01
     return [val / maxExcess for val in schedule]
 
 def create_candidate_schedule(schedule, step, epoch):
@@ -261,7 +261,7 @@ def should_charge(userProfile: UserProfile, threshold, flexibleLoads: List[Flexi
 
 if __name__ == "__main__":
 
-    weight1 = 0.7 #importance of cost over shutoff (0 is no consideration for cost, 1 is only consider cost)
+    weight1 = 0 #importance of cost over shutoff (0 is no consideration for cost, 1 is only consider cost)
     weight2 = 0.6
     lowerLimit = 20
     maximumLimit = 90
@@ -277,8 +277,8 @@ if __name__ == "__main__":
     best_threshold, best_score, best_solar, best_battery = find_optimal_threshold(user_model)
     
     #get user flexible loads (should pull from db and get required energy cost and duration of load)
-    TeslaEV = FlexibleLoad("Tesla EV", 10000,3) #example
-    SomethingElse = FlexibleLoad("Something Else", 50000000000,1 )
+    TeslaEV = FlexibleLoad("Tesla EV", 10000, 3) #example
+    SomethingElse = FlexibleLoad("Something Else", 5000000, 1)
     flexible_loads = [TeslaEV, SomethingElse] #array of all user flexible loads
 
     #output good times for user visualization

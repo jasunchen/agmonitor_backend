@@ -55,8 +55,8 @@ def optimization(email):
         
 
         #get user flexible loads (should pull from db and get required energy cost and duration of load)
-        TeslaEV = FlexibleLoad("Tesla EV",1000,3) #example
-        SomethingElse = FlexibleLoad("Something Else", 50000,23)
+        TeslaEV = FlexibleLoad("Tesla EV",10000, 10) #example
+        SomethingElse = FlexibleLoad("Something Else",50000,23)
         flexible_loads = [TeslaEV, SomethingElse] #array of all user flexible loads
 
         #output good times for user visualization
@@ -68,7 +68,7 @@ def optimization(email):
         tmp_user.pred_best_schedule = json.dumps(best_schedule)
 
         #user preferred schedule
-        user_preferred_schedule = [8, 21] #preferred start times for TeslaEV/etc pulled from database
+        user_preferred_schedule = [["Tesla EV", 1, 10], ["Something Else", 0, 0]] #preferred start times for TeslaEV/etc pulled from database
 
         #output acceptable boolean
         shouldCharge = should_charge(user_model, best_threshold, flexible_loads, user_preferred_schedule, best_schedule_score)
