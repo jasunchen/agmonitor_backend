@@ -88,8 +88,12 @@ def get_user(request):
             status = 400)
 
     email = request.query_params.get('email')
-    tmp_user = user.objects.get(user_email=email)
-    return Response(model_to_dict(tmp_user))
+    
+    try:
+        tmp_user = user.objects.get(user_email=email)
+        return Response(model_to_dict(tmp_user))
+    except:
+        return Response({"detail": "Error: User does not exist"}, status=400)
 
 @api_view(['POST'])
 def register_user(request):
