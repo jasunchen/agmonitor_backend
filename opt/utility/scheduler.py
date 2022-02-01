@@ -23,6 +23,7 @@ def optimization(email):
         longitude = tmp_user.longitude
         latitude = tmp_user.latitude
         alert = get_alerts(latitude, longitude)
+        # tmp_user.text = json.dumps(alert)
         risk = calculate_shutOffRisk(alert)
         solar = []
         for i in range(0, 2866, 15):
@@ -89,6 +90,6 @@ def opt_scheduler():
 
 def start():
     scheduler = BackgroundScheduler()
-    scheduler.add_job(opt_scheduler, 'cron', hour=21, minute=00, timezone='America/Los_Angeles')
-    # scheduler.add_job(opt_scheduler, 'interval', minutes=1)
+    # scheduler.add_job(opt_scheduler, 'cron', hour=21, minute=00, timezone='America/Los_Angeles')
+    scheduler.add_job(opt_scheduler, 'interval', minutes=1)
     scheduler.start()
