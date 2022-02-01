@@ -213,9 +213,10 @@ def find_good_times(best_solar, best_battery):
     maxExcess = max(schedule)
     return [val / maxExcess for val in schedule]
 
-def create_candidate_schedule(schedule, step):
+def create_candidate_schedule(schedule, step, epoch):
     for i in range(len(schedule)):
-        schedule[i][1] = np.random.randint(2)
+        if epoch < 5:
+            schedule[i][1] = np.random.randint(2)
         schedule[i][2] += np.random.randn()*step
         schedule[i][2] = round(schedule[i][2])
         schedule[i][2] = max(0, schedule[i][2])
@@ -237,18 +238,19 @@ def find_optimal_fl_schedule(userProfile: UserProfile, threshold, flexibleLoads:
     best, best_eval = curr, curr_eval
     best_solar, best_battery = [],[]
 
-    for i in range(1000):
-        candidate = create_candidate_schedule(curr, step_size)
-        candidate_eval, excessSolar, excessBattery = flexibleLoadScheduleCost(userProfile, threshold, flexibleLoads, candidate)
+    for epoch in range(10):
+        for i in range(1000):
+            candidate = create_candidate_schedule(curr, step_size, epoch)
+            candidate_eval, excessSolar, excessBattery = flexibleLoadScheduleCost(userProfile, threshold, flexibleLoads, candidate)
 
-        if candidate_eval < best_eval:
-            best, best_eval, best_solar, best_battery = candidate, candidate_eval, excessSolar, excessBattery
-            print('>%d cost(%s) = %.5f' % (i, best, best_eval))
-        diff = candidate_eval - curr_eval
-        t = temp / float(i + 1)
-        metropolis = np.exp(-diff / t)
-        if diff < 0 or np.random.rand() < metropolis:
-            curr, curr_eval = candidate, candidate_eval
+            if candidate_eval < best_eval:
+                best, best_eval, best_solar, best_battery = candidate, candidate_eval, excessSolar, excessBattery
+                print('>%d cost(%s) = %.5f' % (i, best, best_eval))
+            diff = candidate_eval - curr_eval
+            t = temp / float(i + 1)
+            metropolis = np.exp(-diff / t)
+            if diff < 0 or np.random.rand() < metropolis:
+                curr, curr_eval = candidate, candidate_eval
 
     return [best, best_eval, best_solar, best_battery]
 
@@ -275,7 +277,7 @@ if __name__ == "__main__":
     best_threshold, best_score, best_solar, best_battery = find_optimal_threshold(user_model)
     
     #get user flexible loads (should pull from db and get required energy cost and duration of load)
-    TeslaEV = FlexibleLoad("Tesla EV", 1000,3) #example
+    TeslaEV = FlexibleLoad("Tesla EV", 10000,3) #example
     SomethingElse = FlexibleLoad("Something Else", 50000000000,1 )
     flexible_loads = [TeslaEV, SomethingElse] #array of all user flexible loads
 
