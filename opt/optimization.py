@@ -212,13 +212,9 @@ def find_optimal_fl_schedule(userProfile: UserProfile, threshold, flexibleLoads:
     best_eval = 0.871
     return [best_schedule, best_eval]
 
-def should_charge(userProfile: UserProfile, threshold, flexibleLoads: List[FlexibleLoad], schedule: List[List[int]], optimum: float, energyFlow):
+def should_charge(userProfile: UserProfile, threshold, flexibleLoads: List[FlexibleLoad], schedule: List[List[int]], optimum: float):
     #is given schedule close enough to optimum? 
-    energyFlow = flexibleLoadEnergyFlow(energyFlow, flexibleLoads, schedule)
-    cost = flexibleLoadScheduleCost(userProfile, threshold, energyFlow, flexibleLoads, schedule)
-
-
-    return (cost-optimum <= 0.2)
+    return True
 
 if __name__ == "__main__":
 
