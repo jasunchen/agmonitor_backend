@@ -14,71 +14,71 @@ def optimization(email):
     tmp_user = user.objects.get(user_email=email)
     generation_assets = user_asset.objects.filter(user=tmp_user, type_of_asset='generation')
 
-    try:
-        low_limit = tmp_user.low_limit
-        max_limit = tmp_user.max_limit
-        battery_size = tmp_user.battery_size
-        cost_or_shutoff = tmp_user.cost_or_shutoff
-        hours_of_power = tmp_user.hours_of_power
-        longitude = tmp_user.longitude
-        latitude = tmp_user.latitude
-        alert = get_alerts(latitude, longitude)
-        # tmp_user.text = json.dumps(alert)
-        risk = calculate_shutOffRisk(alert)
-        solar = []
-        for i in range(0, 2866, 15):
-            solar.append([i, 0])
-        for gen in generation_assets:
-            declination = gen.declination
-            azimuth = gen.azimuth
-            modules_power = gen.modules_power
-            data = getSolarData(latitude, longitude, declination, azimuth, modules_power)
-            if data[0] == 400:
-                return data[1]
-            for i in range(192):
-                solar[i][1] += data[1][i][1]
-        base_load = calculate_base_load(tmp_user, 0, 100000000000000000)
-        ave_base_load = 0
-        for i in range(96):
-            ave_base_load += base_load[i][1]
-        ave_base_load /= 96
-        idealReserveThreshold = calculate_idealReserveThreshold(hours_of_power, ave_base_load, battery_size)
-        base_load = base_load * 2
-        weight1 = 0.7
-        weight2 = 0.6
-        solar_forecast = [item[1] for item in solar]
-        base_forecast = [item[1] for item in base_load]
-        cur_battery = 14000
+    # try:
+    low_limit = tmp_user.low_limit
+    max_limit = tmp_user.max_limit
+    battery_size = tmp_user.battery_size
+    cost_or_shutoff = tmp_user.cost_or_shutoff
+    hours_of_power = tmp_user.hours_of_power
+    longitude = tmp_user.longitude
+    latitude = tmp_user.latitude
+    alert = get_alerts(latitude, longitude)
+    # tmp_user.text = json.dumps(alert)
+    risk = calculate_shutOffRisk(alert)
+    solar = []
+    for i in range(0, 2866, 15):
+        solar.append([i, 0])
+    for gen in generation_assets:
+        declination = gen.declination
+        azimuth = gen.azimuth
+        modules_power = gen.modules_power
+        data = getSolarData(latitude, longitude, declination, azimuth, modules_power)
+        if data[0] == 400:
+            return data[1]
+        for i in range(192):
+            solar[i][1] += data[1][i][1]
+    base_load = calculate_base_load(tmp_user, 0, 100000000000000000)
+    ave_base_load = 0
+    for i in range(96):
+        ave_base_load += base_load[i][1]
+    ave_base_load /= 96
+    idealReserveThreshold = calculate_idealReserveThreshold(hours_of_power, ave_base_load, battery_size)
+    base_load = base_load * 2
+    weight1 = 0.7
+    weight2 = 0.6
+    solar_forecast = [item[1] for item in solar]
+    base_forecast = [item[1] for item in base_load]
+    cur_battery = 14000
 
-        user_model = UserProfile(weight1, weight2, low_limit, max_limit, risk, idealReserveThreshold, solar_forecast, base_forecast, cur_battery, battery_size)
-        best_threshold, best_score, best_solar, best_battery = find_optimal_threshold(user_model)
-        tmp_user.pred_opt_threshold = best_threshold
-        
+    user_model = UserProfile(weight1, weight2, low_limit, max_limit, risk, idealReserveThreshold, solar_forecast, base_forecast, cur_battery, battery_size)
+    best_threshold, best_score, best_solar, best_battery = find_optimal_threshold(user_model)
+    tmp_user.pred_opt_threshold = best_threshold
+    
 
-        #get user flexible loads (should pull from db and get required energy cost and duration of load)
-        TeslaEV = FlexibleLoad("Tesla EV",10000, 10) #example
-        SomethingElse = FlexibleLoad("Something Else",50000,23)
-        flexible_loads = [TeslaEV, SomethingElse] #array of all user flexible loads
+    #get user flexible loads (should pull from db and get required energy cost and duration of load)
+    TeslaEV = FlexibleLoad("Tesla EV",10000, 10) #example
+    SomethingElse = FlexibleLoad("Something Else",50000,23)
+    flexible_loads = [TeslaEV, SomethingElse] #array of all user flexible loads
 
-        #output good times for user visualization
-        good_times = find_good_times(best_solar, best_battery)
-        tmp_user.pred_good_time = json.dumps(good_times)
+    #output good times for user visualization
+    good_times = find_good_times(best_solar, best_battery)
+    tmp_user.pred_good_time = json.dumps(good_times)
 
-        #output ideal schedule
-        best_schedule, best_schedule_score = find_optimal_fl_schedule(user_model, best_threshold, flexible_loads) #should return 2d array [ [1 (should charge), 20 (timeOfDay)], [0 (should not charge), 0 (irrelevant)]]
-        tmp_user.pred_best_schedule = json.dumps(best_schedule)
+    #output ideal schedule
+    best_schedule, best_schedule_score, best_solarFL, best_batteryFL = find_optimal_fl_schedule(user_model, best_threshold, flexible_loads) #should return 2d array [ [1 (should charge), 20 (timeOfDay)], [0 (should not charge), 0 (irrelevant)]]
+    tmp_user.pred_best_schedule = json.dumps(best_schedule)
 
-        #user preferred schedule
-        user_preferred_schedule = [["Tesla EV", 1, 10], ["Something Else", 0, 0]] #preferred start times for TeslaEV/etc pulled from database
+    #user preferred schedule
+    user_preferred_schedule = [["Tesla EV", 1, 10], ["Something Else", 0, 0]] #preferred start times for TeslaEV/etc pulled from database
 
-        #output acceptable boolean
-        shouldCharge = should_charge(user_model, best_threshold, flexible_loads, user_preferred_schedule, best_schedule_score)
-        tmp_user.should_charge = shouldCharge
-        tmp_user.save()
-        send_email(tmp_user.user_email, message.format(tmp_user.pred_opt_threshold))
-    except Exception as e:
-        print(e)
-        return "failed"
+    #output acceptable boolean
+    shouldCharge = should_charge(user_model, best_threshold, flexible_loads, user_preferred_schedule, best_schedule_score)
+    tmp_user.should_charge = shouldCharge
+    tmp_user.save()
+    send_email(tmp_user.user_email, message.format(tmp_user.pred_opt_threshold))
+    # except Exception as e:
+    #     print(e)
+    #     return "failed"
 
 
 def opt_scheduler():
@@ -90,6 +90,6 @@ def opt_scheduler():
 
 def start():
     scheduler = BackgroundScheduler()
-    # scheduler.add_job(opt_scheduler, 'cron', hour=21, minute=00, timezone='America/Los_Angeles')
-    scheduler.add_job(opt_scheduler, 'interval', minutes=1)
+    scheduler.add_job(opt_scheduler, 'cron', hour=21, minute=00, timezone='America/Los_Angeles')
+    # scheduler.add_job(opt_scheduler, 'interval', minutes=1)
     scheduler.start()

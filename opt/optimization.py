@@ -231,7 +231,7 @@ def find_optimal_fl_schedule(userProfile: UserProfile, threshold, flexibleLoads:
     temp = 10
 
     initial_schedule = []
-    for i in range(len(flexible_loads)):
+    for i in range(len(flexibleLoads)):
         initial_schedule.append([flexibleLoads[i].id, np.random.randint(2), np.random.randint(96)])
     initial_eval = flexibleLoadScheduleCost(userProfile, threshold, flexibleLoads, initial_schedule)[0]
 
@@ -246,14 +246,14 @@ def find_optimal_fl_schedule(userProfile: UserProfile, threshold, flexibleLoads:
 
             if candidate_eval < best_eval:
                 best, best_eval, best_solar, best_battery = candidate, candidate_eval, excessSolar, excessBattery
-                print('>%d cost(%s) = %.5f' % (i, best, best_eval))
+                # print('>%d cost(%s) = %.5f' % (i, best, best_eval))
             diff = candidate_eval - curr_eval
             t = temp / float(i + 1)
             metropolis = np.exp(-diff / t)
             if diff < 0 or np.random.rand() < metropolis:
                 curr, curr_eval = candidate, candidate_eval
 
-    return [best, best_eval, best_solar, best_battery]
+    return best, best_eval, best_solar, best_battery
 
 def should_charge(userProfile: UserProfile, threshold, flexibleLoads: List[FlexibleLoad], schedule: List[List[int]], optimum: float):
     #is given schedule close enough to optimum? 
