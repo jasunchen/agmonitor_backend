@@ -169,7 +169,7 @@ def flexibleLoadScheduleCost(userProfile: UserProfile, threshold, flexibleLoads:
 
     #keep track of maximum costs to minmax normalize values 
     maxCostGrid = 0.01
-    maxCostRenewableIntegration = 0
+    maxCostRenewableIntegration = 0.01
 
     thresholdWattHours = 0.01 *threshold*userProfile.batterySize #convert threshold percentage into watt hours
     minimumWattHours = 0.2*userProfile.batterySize
