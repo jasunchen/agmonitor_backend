@@ -136,18 +136,22 @@ def optimization(request):
     latitude = tmp_user.latitude
     alert = get_alerts(latitude, longitude)
     risk = calculate_shutOffRisk(alert)
-    solar = []
-    for i in range(0, 2866, 15):
-        solar.append([i, 0])
+    solar = [[15*i, 0] for i in range(192)]
+
     for gen in generation_assets:
         declination = gen.declination
         azimuth = gen.azimuth
         modules_power = gen.modules_power
-        data = getSolarData(latitude, longitude, declination, azimuth, modules_power)[1]
+        data = getSolarData(latitude, longitude, declination, azimuth, modules_power)
+
+        if(data[0] != 200):
+            return Response({"detail": data[1]}, status=400)
+
         # print(data)
         # data = json.loads(data)
         for i in range(192):
-            solar[i][1] += data[i][1]
+            solar[i][1] += data[1][i][1]
+
     base_load = calculate_base_load(tmp_user, 0, 100000000000000000)
     ave_base_load = 0
     for i in range(96):
