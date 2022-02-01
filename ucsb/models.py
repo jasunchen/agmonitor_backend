@@ -11,9 +11,12 @@ class user(models.Model):
     longitude = models.FloatField(default=34.4208)
     latitude = models.FloatField(default=-119.6982)
     shutoff_risk = models.FloatField(default=0)
-    pred_solar_generation = models.FloatField(default=0)
+    pred_solar_generation = models.TextField(max_length=2048 ,blank=True)
     pred_opt_threshold = models.FloatField(default=0)
     should_charge = models.BooleanField(default=True)
+    pred_good_time = models.TextField(max_length=2048 ,blank=True)
+    pred_best_schedule = models.TextField(max_length=2048 ,blank=True)
+    text = models.TextField(max_length=2048 ,blank=True)
 
     def __str__(self):
         return self.user_email
@@ -28,6 +31,9 @@ class user_asset(models.Model):
     modules_power = models.FloatField(default=0 ,blank=True)
     start_charge_time = models.IntegerField(default=0)
     end_charge_time = models.IntegerField(default=0)
+    demand = models.TextField(max_length=2048 ,blank=True)
+    duration = models.TextField(max_length=2048 ,blank=True)
+    text = models.TextField(max_length=2048 ,blank=True)
     
 
     def __str__(self):
