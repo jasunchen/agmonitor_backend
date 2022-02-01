@@ -204,8 +204,14 @@ def flexibleLoadScheduleCost(userProfile: UserProfile, threshold, flexibleLoads:
 
 def find_good_times(best_solar, best_battery):
     #for user visualization
-    schedule = [1]*96
-    return schedule
+    schedule = [0]*96
+    for i in range(96):
+        schedule[i] += best_solar[i]
+        if (best_battery[i] > 0):
+            for j in range(i+1):
+                schedule[j] += best_battery[i]/(i+1)
+    maxExcess = max(schedule)
+    return [val / maxExcess for val in schedule]
 
 def create_candidate_schedule(schedule, step):
     for i in range(len(schedule)):
@@ -286,7 +292,7 @@ if __name__ == "__main__":
     shouldCharge = should_charge(user_model, best_threshold, flexible_loads, user_preferred_schedule, best_schedule_score)
 
 
-    #print(good_times)
+    print(good_times)
     print(best_threshold, best_score)
     print(best_schedule, best_schedule_score)
     #print(shouldCharge)
