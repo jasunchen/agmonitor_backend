@@ -156,7 +156,11 @@ def get_all_assets(request):
             status = 400)
 
     email = request.query_params.get('email')
-    tmp_user = user.objects.get(user_email=email)
+    try:
+        tmp_user = user.objects.get(user_email=email)
+    except:
+        return Response({"detail": "Error: User does not exist"}, status=400)
+
     bases = user_asset.objects.filter(user=tmp_user, type_of_asset='base').values('id', 'asset_name', 'description')
     generations = user_asset.objects.filter(user=tmp_user, type_of_asset='generation').values('id', 'asset_name', 'description', 'declination', 'azimuth', 'modules_power')
     felxible_assets = user_asset.objects.filter(user=tmp_user, type_of_asset='flexible').values('id', 'asset_name', 'description', 'start_charge_time', 'end_charge_time', 'duration', 'demand')
