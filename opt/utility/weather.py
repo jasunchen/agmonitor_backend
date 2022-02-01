@@ -8,7 +8,7 @@ def get_alerts(latitude: float, longitude: float):
         for alert in weather['alerts']:
              alerts.append([alert['severity'], alert['title']])
         
-        print(alerts)
+        # print(alerts)
 
         return weather['alerts']
 
