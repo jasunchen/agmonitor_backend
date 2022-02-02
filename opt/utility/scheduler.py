@@ -49,6 +49,7 @@ def optimization(email):
         solar_forecast = [item[1] for item in solar]
         tmp_user.pred_solar_generation = json.dumps(solar_forecast)
         base_forecast = [item[1] for item in base_load]
+        tmp_user.pred_base_load = json.dumps(base_forecast)
         cur_battery = 14000
 
         user_model = UserProfile(weight1, weight2, low_limit, max_limit, risk, idealReserveThreshold, solar_forecast, base_forecast, cur_battery, battery_size)

@@ -5,17 +5,21 @@ class user(models.Model):
     user_email = models.EmailField(max_length=100, unique=True, primary_key=True)
     low_limit = models.IntegerField(default=0)
     max_limit = models.IntegerField(default=100)
-    battery_size = models.IntegerField(default=0)
+    battery_size = models.IntegerField(default=1)
     cost_or_shutoff = models.IntegerField(default=50)
     hours_of_power = models.IntegerField(default=0)
-    longitude = models.FloatField(default=34.4208)
-    latitude = models.FloatField(default=-119.6982)
+    longitude = models.FloatField(default=-119.6982)
+    latitude = models.FloatField(default=34.4208)
     shutoff_risk = models.FloatField(default=0)
     pred_solar_generation = models.TextField(max_length=2048 ,blank=True)
     pred_opt_threshold = models.FloatField(default=0)
     should_charge = models.BooleanField(default=True)
     pred_good_time = models.TextField(max_length=2048 ,blank=True)
     pred_best_schedule = models.TextField(max_length=2048 ,blank=True)
+    pred_battery_level = models.TextField(max_length=2048 ,blank=True)
+    phone_number = models.TextField(max_length=15 ,blank=True)
+    pred_baseload = models.TextField(max_length=2048 ,blank=True)
+    utility = models.TextField(max_length=2048 ,blank=True)
     text = models.TextField(max_length=2048 ,blank=True)
 
     def __str__(self):
@@ -34,7 +38,6 @@ class user_asset(models.Model):
     demand = models.TextField(max_length=2048 ,blank=True)
     duration = models.TextField(max_length=2048 ,blank=True)
     text = models.TextField(max_length=2048 ,blank=True)
-    
 
     def __str__(self):
         return self.asset_name
