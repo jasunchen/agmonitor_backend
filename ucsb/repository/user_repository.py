@@ -11,7 +11,7 @@ from opt.utility.send_email import *
 # from ucsb.repository.helpers import *
 import smtplib, ssl
 
-message = "Hello, this is a daily automated notification. Based on weather forecasts and historical data for tomorrow, the ideal battery reserve percentage for your battery is {}%. Please visit https://agmonitor-pina-colada.herokuapp.com/home/ for more details."
+message = "Hello, this is a daily automated notification. Based on weather forecasts and historical data for tomorrow, the ideal battery reserve percentage for your battery is {}%. Please visit https://agmonitor-pina-colada.herokuapp.com/snapshot/ for more details."
 
 @api_view(['POST', 'DELETE'])
 def update_user(request):
