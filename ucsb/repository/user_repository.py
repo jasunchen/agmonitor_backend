@@ -11,6 +11,7 @@ from opt.utility.send_email import *
 # from ucsb.repository.helpers import *
 import smtplib, ssl
 
+message = "Hello, this is a daily automated notification. Based on weather forecasts and historical data for tomorrow, the ideal battery reserve percentage for your battery is {}%. Please visit https://agmonitor-pina-colada.herokuapp.com/home/ for more details."
 
 @api_view(['POST', 'DELETE'])
 def update_user(request):
@@ -192,7 +193,7 @@ def optimization(request):
         shouldCharge = should_charge(user_model, best_threshold, flexible_loads, user_preferred_schedule, best_schedule_score)
         tmp_user.should_charge = shouldCharge
         tmp_user.save()
-        send_email(tmp_user.user_email, "Test context")
+        send_email(tmp_user.user_email, message.format(best_threshold))
 
     
     except Exception as e:

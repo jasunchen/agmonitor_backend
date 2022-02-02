@@ -10,8 +10,8 @@ def send_email(receiver, message):
     msg = EmailMessage()
     msg.set_content(message)
 
-    msg['Subject'] = 'Agmnitor Notification'
-    msg['From'] = "Agmonitor AutoNotification"
+    msg['Subject'] = '[ACTION REQUIRED] Your Changes for Energy Grid Optimization'
+    msg['From'] = "Agmonitor Optimization AutoNotification"
     msg['To'] = receiver
 
     # Send the message via our own SMTP server.
