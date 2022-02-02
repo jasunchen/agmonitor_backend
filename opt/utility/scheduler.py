@@ -47,6 +47,7 @@ def optimization(email):
         weight1 = 0.7
         weight2 = 0.6
         solar_forecast = [item[1] for item in solar]
+        tmp_user.pred_solar_generation = json.dumps(solar_forecast)
         base_forecast = [item[1] for item in base_load]
         cur_battery = 14000
 
