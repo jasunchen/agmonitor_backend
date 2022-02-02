@@ -16,6 +16,10 @@ class user(models.Model):
     should_charge = models.BooleanField(default=True)
     pred_good_time = models.TextField(max_length=2048 ,blank=True)
     pred_best_schedule = models.TextField(max_length=2048 ,blank=True)
+    pred_battery_level = models.TextField(max_length=2048 ,blank=True)
+    phone_number = models.TextField(max_length=15 ,blank=True)
+    pred_baseload = models.TextField(max_length=2048 ,blank=True)
+    utility = models.TextField(max_length=2048 ,blank=True)
     text = models.TextField(max_length=2048 ,blank=True)
 
     def __str__(self):
@@ -34,7 +38,6 @@ class user_asset(models.Model):
     demand = models.TextField(max_length=2048 ,blank=True)
     duration = models.TextField(max_length=2048 ,blank=True)
     text = models.TextField(max_length=2048 ,blank=True)
-    
 
     def __str__(self):
         return self.asset_name
