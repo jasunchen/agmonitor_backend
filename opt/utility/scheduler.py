@@ -54,8 +54,10 @@ def optimization(email):
         cur_battery = 14000
 
         user_model = UserProfile(weight1, weight2, low_limit, max_limit, risk, idealReserveThreshold, solar_forecast, base_forecast, cur_battery, battery_size)
-        best_threshold, best_score, best_solar, best_battery = find_optimal_threshold(user_model)
+        best_threshold, best_score, best_solar, best_battery, utility, battery = find_optimal_threshold(user_model)
         tmp_user.pred_opt_threshold = best_threshold
+        tmp_user.pred_battery_level = battery
+        tmp_user.utility = utility
         
 
         #get user flexible loads (should pull from db and get required energy cost and duration of load)
