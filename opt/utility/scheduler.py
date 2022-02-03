@@ -1,6 +1,7 @@
 from opt.utility.send_email import send_email
 # from ucsb.models import *
 from apscheduler.schedulers.background import BackgroundScheduler
+from opt.utility.send_message import send_message
 import json
 
 message = "Hello, this is a daily automated notification. Based on weather forecasts and historical data for tomorrow, the ideal reserve percentage for your battery is {} percent. Please visit https://agmonitor-pina-colada.herokuapp.com/ for more details."
@@ -78,6 +79,7 @@ def optimization(email):
         tmp_user.should_charge = shouldCharge
         tmp_user.save()
         send_email(tmp_user.user_email, message.format(tmp_user.pred_opt_threshold))
+        send_message(message.format(tmp_user.pred_opt_threshold), tmp_user.phone_number)
     except Exception as e:
         print(e)
         return "failed"
