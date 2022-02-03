@@ -62,6 +62,8 @@ def computePredictedBatteryChargeAndTotalCost(currentCharge, energyFlow, thresho
 
     excessSolar = [0]*192 #if solar generation is too high
     excessBattery = [0]*192 #if battery storage is capped out
+    utility = [0]*192
+    battery = [0]*192
 
     #keep track of maximum costs to minmax normalize values 
     maxCostGrid = 0.01
@@ -76,9 +78,11 @@ def computePredictedBatteryChargeAndTotalCost(currentCharge, energyFlow, thresho
             currentCharge += min(e, maxCharge)
             excessSolar[index] += max(0, e-maxCharge)
             maxCostRenewableIntegration += e
+            utility[index] += max(0, e-maxCharge)
         else:
             currentCharge += max(e, maxDischarge) #max to take less negative number
             maxCostGrid += max(e, maxDischarge)*price
+            utility[index] += max(0, e-maxDischarge)
 
         diff = currentCharge - thresholdWattHours if (index < 96) else currentCharge - minimumWattHours
 
@@ -91,13 +95,15 @@ def computePredictedBatteryChargeAndTotalCost(currentCharge, energyFlow, thresho
             costRenewableIntegration += excess
             excessBattery[index] += currentCharge
             currentCharge -= excess
+
+        battery[index] = currentCharge
         
 
     # cost to grid
     # wasted solar
     # excess solar (not wasted, could not capture bc of limitations)
     # excess battery (wasted)
-    return (costGrid/maxCostGrid, costRenewableIntegration/maxCostRenewableIntegration, excessSolar, excessBattery)
+    return (costGrid/maxCostGrid, costRenewableIntegration/maxCostRenewableIntegration, excessSolar, excessBattery, utility, battery)
 
 def computeShutOffCost(shutOffRisk, idealReserveThreshold, threshold):
         return shutOffRisk * (1 - (threshold/idealReserveThreshold))
@@ -108,12 +114,12 @@ def thresholdCost(userProfile: UserProfile, threshold):
     #batteryState -> batteryPercentage, maxCharge, maxDischarge
 
     energyFlow = computeEnergyFlow(userProfile.solarForecast, userProfile.baseForecast)
-    costGrid, costRenewableIntegration, excessSolar, excessBattery = computePredictedBatteryChargeAndTotalCost(userProfile.currentBatteryState, energyFlow, threshold, userProfile.batterySize)
+    costGrid, costRenewableIntegration, excessSolar, excessBattery, utility, battery= computePredictedBatteryChargeAndTotalCost(userProfile.currentBatteryState, energyFlow, threshold, userProfile.batterySize)
     costShutOff = computeShutOffCost(userProfile.shutOffRisk, userProfile.idealReserveThreshold, threshold)
 
     cost = userProfile.weight1*costGrid + (1-userProfile.weight1)* costShutOff + userProfile.weight2 * costRenewableIntegration
 
-    return (cost, excessSolar, excessBattery)
+    return (cost, excessSolar, excessBattery, utility, battery)
 
 def find_optimal_threshold(userProfile: UserProfile):
     step_size = 20
@@ -128,7 +134,7 @@ def find_optimal_threshold(userProfile: UserProfile):
         candidate = curr + np.random.randn() * step_size
         candidate = max(userProfile.lowerLimit, candidate)
         candidate = min(userProfile.maximumLimit, candidate)
-        candidate_eval, excessSolar, excessBattery = thresholdCost(userProfile, candidate)
+        candidate_eval, excessSolar, excessBattery, utility, battery = thresholdCost(userProfile, candidate)
 
         if candidate_eval < best_eval:
             best, best_eval, best_solar, best_battery = candidate, candidate_eval, excessSolar, excessBattery
@@ -139,7 +145,7 @@ def find_optimal_threshold(userProfile: UserProfile):
         if diff < 0 or np.random.rand() < metropolis:
             curr, curr_eval = candidate, candidate_eval
 
-    return [best, best_eval, best_solar, best_battery]
+    return [best, best_eval, best_solar, best_battery, utility, battery]
 
 def flexibleLoadEnergyFlow(energyFlow, flexibleLoads: List[FlexibleLoad], schedule: List[List[int]]):
     for i in range(len(flexibleLoads)):
@@ -275,7 +281,7 @@ if __name__ == "__main__":
     batterySize = 14000
 
     user_model = UserProfile(weight1, weight2, lowerLimit, maximumLimit, shutOffRisk, idealReserveThreshold, solarForecast, baseForecast, currentBatteryState, batterySize)
-    best_threshold, best_score, best_solar, best_battery = find_optimal_threshold(user_model)
+    best_threshold, best_score, best_solar, best_battery, utility, battery = find_optimal_threshold(user_model)
     
     #get user flexible loads (should pull from db and get required energy cost and duration of load)
     TeslaEV = FlexibleLoad("Tesla EV", 10000, 3) #example
@@ -296,7 +302,7 @@ if __name__ == "__main__":
 
 
     print(good_times)
-    print(best_threshold, best_score)
+    print(best_threshold, best_score, utility, battery)
     print(best_schedule, best_schedule_score)
     #print(shouldCharge)
     #print(calculate_shutOffRisk([]))
