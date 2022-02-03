@@ -37,7 +37,7 @@ def add_asset(request):
         asset = user_asset(user=tmp_user, asset_name=name, description=desc, declination=declination, azimuth=azimuth, modules_power=modules_power, type_of_asset="generation")
         asset.save()
     elif request.data.get("type_of_asset", None) == "flexible":
-        params = ["start_charge_time", "end_charge_time"]
+        params = ["start_charge_time", "end_charge_time", "demand", "duration"]
         #Check for Required Fields
         for p in params:
             if request.data.get(p, None) == None:
@@ -47,7 +47,9 @@ def add_asset(request):
         
         start_time = request.data.get('start_charge_time')
         end_time = request.data.get('end_charge_time')
-        asset = user_asset(user=tmp_user, asset_name=name, description=desc, start_charge_time=start_time, end_charge_time=end_time, type_of_asset="flexible")
+        dmd = request.data.get('demand')
+        dur = request.data.get('duration')
+        asset = user_asset(user=tmp_user, asset_name=name, description=desc, start_charge_time=start_time, end_charge_time=end_time, type_of_asset="flexible",demand=dmd, duration=dur)
         asset.save()
     else:
         asset = user_asset(user=tmp_user, asset_name=name, description=desc)
@@ -94,7 +96,7 @@ def update_asset(request):
         asset.azimuth = azimuth
         asset.modules_power = modules_power
     elif asset.type_of_asset == "flexible":
-        params = ["start_charge_time", "end_charge_time"]
+        params = ["start_charge_time", "end_charge_time", "demand", "duration"]
         #Check for Required Fields
         for p in params:
             if request.data.get(p, None) == None:
@@ -104,8 +106,12 @@ def update_asset(request):
         
         start_time = request.data.get('start_charge_time')
         end_time = request.data.get('end_charge_time')
+        dmd = request.data.get('demand')
+        dur = request.data.get('duration')
         asset.start_charge_time = start_time
         asset.end_charge_time = end_time
+        asset.demand = dmd
+        asset.duration = dur
     asset.save()
     
     return Response({"detail":"Asset updated successfully"})
