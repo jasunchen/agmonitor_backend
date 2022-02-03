@@ -23,6 +23,7 @@ def optimization(email):
         longitude = tmp_user.longitude
         latitude = tmp_user.latitude
         alert = get_alerts(latitude, longitude)
+        # tmp_user.text = json.dumps(alert)
         risk = calculate_shutOffRisk(alert)
         solar = []
         for i in range(0, 2866, 15):
@@ -46,7 +47,9 @@ def optimization(email):
         weight1 = 0.7
         weight2 = 0.6
         solar_forecast = [item[1] for item in solar]
+        tmp_user.pred_solar_generation = json.dumps(solar_forecast)
         base_forecast = [item[1] for item in base_load]
+        tmp_user.pred_base_load = json.dumps(base_forecast)
         cur_battery = 14000
 
         user_model = UserProfile(weight1, weight2, low_limit, max_limit, risk, idealReserveThreshold, solar_forecast, base_forecast, cur_battery, battery_size)
@@ -55,8 +58,8 @@ def optimization(email):
         
 
         #get user flexible loads (should pull from db and get required energy cost and duration of load)
-        TeslaEV = FlexibleLoad("Tesla EV",1000,3) #example
-        SomethingElse = FlexibleLoad("Something Else", 50000,23)
+        TeslaEV = FlexibleLoad("Tesla EV",10000, 10) #example
+        SomethingElse = FlexibleLoad("Something Else",50000,23)
         flexible_loads = [TeslaEV, SomethingElse] #array of all user flexible loads
 
         #output good times for user visualization
@@ -64,11 +67,11 @@ def optimization(email):
         tmp_user.pred_good_time = json.dumps(good_times)
 
         #output ideal schedule
-        best_schedule, best_schedule_score = find_optimal_fl_schedule(user_model, best_threshold, flexible_loads) #should return 2d array [ [1 (should charge), 20 (timeOfDay)], [0 (should not charge), 0 (irrelevant)]]
+        best_schedule, best_schedule_score, best_solarFL, best_batteryFL = find_optimal_fl_schedule(user_model, best_threshold, flexible_loads) #should return 2d array [ [1 (should charge), 20 (timeOfDay)], [0 (should not charge), 0 (irrelevant)]]
         tmp_user.pred_best_schedule = json.dumps(best_schedule)
 
         #user preferred schedule
-        user_preferred_schedule = [8, 21] #preferred start times for TeslaEV/etc pulled from database
+        user_preferred_schedule = [["Tesla EV", 1, 10], ["Something Else", 0, 0]] #preferred start times for TeslaEV/etc pulled from database
 
         #output acceptable boolean
         shouldCharge = should_charge(user_model, best_threshold, flexible_loads, user_preferred_schedule, best_schedule_score)

@@ -17,7 +17,7 @@ message = "Hello, this is a daily automated notification. Based on weather forec
 def update_user(request):
     if request.method == 'POST':
 
-        params = ["email", "low_limit", "max_limit", "battery_size", "cost_or_shutoff", "hours_of_power", "longitude", "latitude"]
+        params = ["email", "low_limit", "max_limit", "battery_size", "cost_or_shutoff", "hours_of_power", "longitude", "latitude", "phone_number"]
     
         #Check for Required Fields
         for p in params:
@@ -40,6 +40,7 @@ def update_user(request):
         hours_of_power = request.data.get('hours_of_power')
         longitude = request.data.get('longitude')
         latitude = request.data.get('latitude')
+        phone_number = request.data.get('phone_number')
 
         tmp_user = user.objects.get(user_email=email)
         tmp_user.low_limit = low_limit
@@ -49,6 +50,7 @@ def update_user(request):
         tmp_user.hours_of_power = hours_of_power
         tmp_user.longitude = longitude
         tmp_user.latitude = latitude
+        tmp_user.phone_number = phone_number
         tmp_user.save()
         return Response({"detail": "User updated successfully"}, status=200)
     elif request.method == 'DELETE':
