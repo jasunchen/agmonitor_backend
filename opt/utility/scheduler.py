@@ -39,6 +39,7 @@ def optimization(email):
             for i in range(192):
                 solar[i][1] += data[1][i][1]
         base_load = calculate_base_load(tmp_user, 0, 100000000000000000)
+
         ave_base_load = 0
         for i in range(96):
             ave_base_load += base_load[i][1]
@@ -47,10 +48,10 @@ def optimization(email):
         base_load = base_load * 2
         weight1 = 0.7
         weight2 = 0.6
-        solar_forecast = [item[1] for item in solar]
+        solar_forecast = [round(item[1], 2) for item in solar]
         tmp_user.pred_solar_generation = json.dumps(solar_forecast)
-        base_forecast = [item[1] for item in base_load]
-        tmp_user.pred_base_load = json.dumps(base_forecast)
+        base_forecast = [round(item[1], 2) for item in base_load]
+        tmp_user.pred_baseload = json.dumps(base_forecast)
         cur_battery = 14000
 
         user_model = UserProfile(weight1, weight2, low_limit, max_limit, risk, idealReserveThreshold, solar_forecast, base_forecast, cur_battery, battery_size)
@@ -59,6 +60,9 @@ def optimization(email):
         tmp_user.pred_battery_level = battery
         tmp_user.utility = utility
         
+        # save weather alerts
+        alerts = [[a['severity'], a['title']] for a in alert]
+        tmp_user.text = alerts
 
         #get user flexible loads (should pull from db and get required energy cost and duration of load)
         TeslaEV = FlexibleLoad("Tesla EV",10000, 10) #example
