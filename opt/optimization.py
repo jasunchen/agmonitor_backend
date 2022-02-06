@@ -25,7 +25,6 @@ class FlexibleLoad:
     self.duration = duration
 
 
-
 # alerts: an array severity rankings
 def calculate_shutOffRisk(alerts):
     risk = 0
@@ -311,9 +310,9 @@ if __name__ == "__main__":
     #output acceptable boolean
     shouldCharge = should_charge(user_model, best_threshold, flexible_loads, user_preferred_schedule, best_schedule_score)
 
-    print(computeEnergyFlow(solarForecast, baseForecast))
-    print(good_times)
-    #print(best_threshold, best_score, utility, battery)
+    #print(computeEnergyFlow(solarForecast, baseForecast))
+    #print(good_times)
+    print(best_threshold, best_score, utility)
     #print(best_schedule, best_schedule_score)
     #print(shouldCharge)
     #print(calculate_shutOffRisk([]))
