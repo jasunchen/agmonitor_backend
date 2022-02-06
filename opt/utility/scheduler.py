@@ -23,9 +23,9 @@ def optimization(email):
         hours_of_power = tmp_user.hours_of_power
         longitude = tmp_user.longitude
         latitude = tmp_user.latitude
-        alert = get_alerts(latitude, longitude)
+        alerts = get_alerts(latitude, longitude)
         # tmp_user.text = json.dumps(alert)
-        risk = calculate_shutOffRisk(alert)
+        risk = calculate_shutOffRisk(alerts)
         solar = []
         for i in range(0, 2866, 15):
             solar.append([i, 0])
@@ -61,7 +61,6 @@ def optimization(email):
         tmp_user.utility = utility
         
         # save weather alerts
-        alerts = [[a['severity'], a['title']] for a in alert]
         tmp_user.text = alerts
 
         #get user flexible loads (should pull from db and get required energy cost and duration of load)
@@ -70,7 +69,7 @@ def optimization(email):
         flexible_loads = [TeslaEV, SomethingElse] #array of all user flexible loads
 
         #output good times for user visualization
-        good_times = find_good_times(best_solar, best_battery)
+        good_times = find_good_times(user_model, best_threshold, TeslaEV)
         tmp_user.pred_good_time = json.dumps(good_times)
 
         #output ideal schedule
