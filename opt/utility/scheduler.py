@@ -70,7 +70,7 @@ def optimization(email):
         flexible_loads = [TeslaEV, SomethingElse] #array of all user flexible loads
 
         #output good times for user visualization
-        good_times = find_good_times(best_solar, best_battery)
+        good_times = find_good_times(user_model, best_threshold, TeslaEV)
         tmp_user.pred_good_time = json.dumps(good_times)
 
         #output ideal schedule
