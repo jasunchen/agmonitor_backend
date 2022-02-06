@@ -30,9 +30,9 @@ def calculate_base_load(tmp_user, start_time, end_time):
     # Compute Running Average
     # 2D list with elements containing [
     # first element: time in minutes (i.e., 1425 = 23:45) use x // 60 for hrs, x % 60 for mins
-    # second element: average base load in KWH
+    # second element: average base load in WH
     #]
-    return [[k, v["sum"] / v["count"] if v["count"] != 0 else 0] for k, v in time_map.items()]
+    return [[k, (v["sum"] / v["count"])*1000 if v["count"] != 0 else 0] for k, v in time_map.items()]
     
 
     
