@@ -4,7 +4,7 @@ import json
 
 from calendar import timegm
 
-ASSET_ID =  2
+ASSET_ID =  1
 FILE_NAME = "subset.csv"
 
 file = open(FILE_NAME, "r").read()
@@ -16,8 +16,8 @@ for line in file.split("\n")[1:]:
         lyst.append({
                 "start_time" : t,
                 "interval": 15,
-                "consumed_energy": float(consumed_energy),
-                "produced_energy": 0.0
+                "consumed_energy": 0.0,
+                "produced_energy": float(consumed_energy)
         })
 
 headers = {'content-type' : 'application/json'}

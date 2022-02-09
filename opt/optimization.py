@@ -58,7 +58,7 @@ def computePredictedBatteryChargeAndTotalCost(currentCharge, energyFlow, thresho
     #todo: implement maxcharge/maxdischarge
     maxCharge = 825 #watt hours per 15 min increment or ~3.3 kWh
     maxDischarge = -1925 #watt hours per 15 min increment or ~7.7 kWh
-
+    
     excessSolar = [0]*192 #if solar generation is too high
     excessBattery = [0]*192 #if battery storage is capped out
     utility = [0]*192
@@ -81,7 +81,7 @@ def computePredictedBatteryChargeAndTotalCost(currentCharge, energyFlow, thresho
         else:
             currentCharge += max(e, maxDischarge) #max to take less negative number
             maxCostGrid += max(e, maxDischarge)*price
-            utility[index] += min(0, e-maxDischarge) 
+            utility[index] += min(0, e-maxDischarge) #-1000 - -1925 --> 925 --> 0, -2000 --1925 --> -75
 
         diff = currentCharge - thresholdWattHours if (index < 96) else currentCharge - minimumWattHours
 
@@ -95,7 +95,7 @@ def computePredictedBatteryChargeAndTotalCost(currentCharge, energyFlow, thresho
             excessBattery[index] += currentCharge
             currentCharge -= excess
 
-        battery[index] = currentCharge
+        battery[index] = round(currentCharge,3)
         
 
     # cost to grid
@@ -128,6 +128,7 @@ def find_optimal_threshold(userProfile: UserProfile):
     curr, curr_eval = userProfile.lowerLimit, initial_eval
     best, best_eval = curr, curr_eval
     best_solar, best_battery = [0]*96,[0]*96
+    utility, battery = [0]*96, [0]*96
 
     for i in range(1000):
         candidate = curr + np.random.randn() * step_size
@@ -226,7 +227,7 @@ def find_good_times(userProfile: UserProfile, threshold, flexibleLoad: FlexibleL
         schedule[i] = candidate_eval
     minCost = min(schedule)
     maxCost = max(schedule)
-    return [round (1 - ((val - minCost) / (maxCost - minCost)), 2) for val in schedule]
+    return [round (1 - ((val - minCost) / max(maxCost - minCost, 0.01)), 2) for val in schedule]
 
 
 
@@ -278,7 +279,7 @@ def should_charge(userProfile: UserProfile, threshold, flexibleLoads: List[Flexi
 
 if __name__ == "__main__":
 
-    weight1 = 0 #importance of cost over shutoff (0 is no consideration for cost, 1 is only consider cost)
+    weight1 = 1 #importance of cost over shutoff (0 is no consideration for cost, 1 is only consider cost)
     weight2 = 0.6
     lowerLimit = 20
     maximumLimit = 90

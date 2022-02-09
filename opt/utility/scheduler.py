@@ -54,11 +54,12 @@ def optimization(email):
         tmp_user.pred_baseload = json.dumps(base_forecast)
         cur_battery = 14000
 
+        solar_forecast = [item * 1000 for item in solar_forecast] #convert to watt hours
         user_model = UserProfile(weight1, weight2, low_limit, max_limit, risk, idealReserveThreshold, solar_forecast, base_forecast, cur_battery, battery_size)
         best_threshold, best_score, best_solar, best_battery, utility, battery = find_optimal_threshold(user_model)
         tmp_user.pred_opt_threshold = best_threshold
         tmp_user.pred_battery_level = battery
-        tmp_user.utility = utility
+        tmp_user.utility = [round(item/1000,2) for item in utility]
         
         # save weather alerts
         tmp_user.text = alerts
