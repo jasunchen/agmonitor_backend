@@ -57,8 +57,8 @@ def computePredictedBatteryChargeAndTotalCost(currentCharge, energyFlow, thresho
     costRenewableIntegration = 0
 
     #todo: implement maxcharge/maxdischarge
-    maxCharge = 825 #watt hours per 15 min increment or ~3.3 kWh
-    maxDischarge = -1925 #watt hours per 15 min increment or ~7.7 kWh
+    maxCharge = 0.06 * maxStorage #825 #watt hours per 15 min increment or ~3.3 kWh
+    maxDischarge = 0.138 * maxStorage #1925 #watt hours per 15 min increment or ~7.7 kWh
     
     excessSolar = [0]*192 #if solar generation is too high
     excessBattery = [0]*192 #if battery storage is capped out
