@@ -46,16 +46,17 @@ def optimization(email):
         ave_base_load /= 96
         idealReserveThreshold = calculate_idealReserveThreshold(hours_of_power, ave_base_load, battery_size)
         base_load = base_load * 2
-        weight1 = 0.7
-        weight2 = 0.6
+        weight1 = 1
+        weight2 = 1
+        weight3 = 1
         solar_forecast = [round(item[1], 2) for item in solar]
         tmp_user.pred_solar_generation = json.dumps(solar_forecast)
         base_forecast = [round(item[1], 2) for item in base_load]
         tmp_user.pred_baseload = json.dumps(base_forecast)
-        cur_battery = 14000
+        cur_battery = battery_size
 
         solar_forecast = [item * 1000 for item in solar_forecast] #convert to watt hours
-        user_model = UserProfile(weight1, weight2, low_limit, max_limit, risk, idealReserveThreshold, solar_forecast, base_forecast, cur_battery, battery_size)
+        user_model = UserProfile(weight1, weight2, weight3, low_limit, max_limit, risk, idealReserveThreshold, solar_forecast, base_forecast, cur_battery, battery_size)
         best_threshold, best_score, best_solar, best_battery, utility, battery = find_optimal_threshold(user_model)
         tmp_user.pred_opt_threshold = best_threshold
         tmp_user.pred_battery_level = battery

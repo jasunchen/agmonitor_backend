@@ -6,9 +6,10 @@ from typing import List
 #from base_load import calculate_base_load
 
 class UserProfile:
-  def __init__(self, weight1, weight2, lowerLimit, maximumLimit, shutOffRisk, idealReserveThreshold, solarForecast, baseForecast, currentBatteryState, batterySize):
+  def __init__(self, weight1, weight2, weight3, lowerLimit, maximumLimit, shutOffRisk, idealReserveThreshold, solarForecast, baseForecast, currentBatteryState, batterySize):
     self.weight1 = weight1
     self.weight2 = weight2
+    self.weight3 = weight3
     self.lowerLimit = lowerLimit
     self.maximumLimit = maximumLimit
     self.shutOffRisk = shutOffRisk
@@ -78,6 +79,7 @@ def computePredictedBatteryChargeAndTotalCost(currentCharge, energyFlow, thresho
             excessSolar[index] += max(0, e-maxCharge)
             maxCostRenewableIntegration += e
             utility[index] += max(0, e-maxCharge)
+            #print("pos:",e-maxCharge)
         else:
             currentCharge += max(e, maxDischarge) #max to take less negative number
             maxCostGrid += max(e, maxDischarge)*price
@@ -96,6 +98,7 @@ def computePredictedBatteryChargeAndTotalCost(currentCharge, energyFlow, thresho
             currentCharge -= excess
 
         battery[index] = round(currentCharge,3)
+        #print(utility[index])
         
 
     # cost to grid
@@ -116,7 +119,7 @@ def thresholdCost(userProfile: UserProfile, threshold):
     costGrid, costRenewableIntegration, excessSolar, excessBattery, utility, battery= computePredictedBatteryChargeAndTotalCost(userProfile.currentBatteryState, energyFlow, threshold, userProfile.batterySize)
     costShutOff = computeShutOffCost(userProfile.shutOffRisk, userProfile.idealReserveThreshold, threshold)
 
-    cost = userProfile.weight1*costGrid + (1-userProfile.weight1)* costShutOff + userProfile.weight2 * costRenewableIntegration
+    cost = userProfile.weight1*costGrid  + userProfile.weight2 * costRenewableIntegration + userProfile.weight3* costShutOff
 
     return (cost, excessSolar, excessBattery, utility, battery)
 
@@ -245,7 +248,7 @@ def create_candidate_schedule(schedule, step, epoch):
 def find_optimal_fl_schedule(userProfile: UserProfile, threshold, flexibleLoads: List[FlexibleLoad]):
     #for best possible schedule & score
     step_size = 10
-    temp = 10
+    temp = 2
 
     initial_schedule = []
     for i in range(len(flexibleLoads)):
@@ -257,7 +260,7 @@ def find_optimal_fl_schedule(userProfile: UserProfile, threshold, flexibleLoads:
     best_solar, best_battery = [],[]
 
     for epoch in range(10):
-        for i in range(1000):
+        for i in range(10000):
             candidate = create_candidate_schedule(curr, step_size, epoch)
             candidate_eval, excessSolar, excessBattery = flexibleLoadScheduleCost(userProfile, threshold, flexibleLoads, candidate)
 
@@ -279,19 +282,30 @@ def should_charge(userProfile: UserProfile, threshold, flexibleLoads: List[Flexi
 
 if __name__ == "__main__":
 
-    weight1 = 1 #importance of cost over shutoff (0 is no consideration for cost, 1 is only consider cost)
-    weight2 = 0.6
+    weight1 = 1 #importance of cost 
+    weight2 = 1 #importance of renewable integ
+    weight3 = 1 #importance of shutoff
     lowerLimit = 20
     maximumLimit = 90
-    shutOffRisk = 0.2
+    shutOffRisk = 0
     idealReserveThreshold = 80
 
-    solarForecast = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10,10,10,10,40,60,80,100,15000,40579,71855, 80123, 90432, 100213, 123100, 130412, 123400, 102103, 105033, 90123, 70123, 15000, 5000,4000,3000,1999,500,50,10,10,10,10,10,10,10,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10,10,10,10,40,60,80,100,15000,40579,71855, 80123, 90432, 100213, 123100, 130412, 123400, 102103, 105033, 90123, 70123, 15000, 5000,4000,3000,1999,500,50,10,10,10,10,10,10,10,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-    baseForecast = [1000]*192
+    #solarForecast = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10,10,10,10,40,60,80,100,15000,40579,71855, 80123, 90432, 100213, 123100, 130412, 123400, 102103, 105033, 90123, 70123, 15000, 5000,4000,3000,1999,500,50,10,10,10,10,10,10,10,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10,10,10,10,40,60,80,100,15000,40579,71855, 80123, 90432, 100213, 123100, 130412, 123400, 102103, 105033, 90123, 70123, 15000, 5000,4000,3000,1999,500,50,10,10,10,10,10,10,10,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+    #baseForecast = [1000]*192
+    baseForecast = [123.57, 153.57, 173.57, 175.71, 150.71, 154.29, 133.57, 124.29, 119.29, 112.86, 101.43, 95.71, 100.0, 96.43, 102.14, 86.43, 102.86, 60.71, 53.57, 63.57, 62.14, 55.0, 48.57, 55.71, 55.0, 55.0, 59.29, 60.0, 65.0, 48.57, 45.71, 12.86, 3.57, 0.71, 0.71, 0.0, 0.0, 0.0, 0.0, 0.0, 0.71, 0.71, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.43, 4.64, 0.36, 0.71, 4.64, 1.79, 3.57, 0.36, 0.36, 0.0, 0.0, 0.0, 0.0, 0.36, 0.36, 0.0, 1.43, 0.71, 0.0, 0.0, 0.71, 0.0, 0.36, 16.79, 25.71, 23.57, 47.5, 83.57, 57.5, 73.57, 84.64, 95.36, 101.79, 121.79, 129.29, 115.71, 121.43, 123.21, 317.5, 295.36, 253.93, 237.86, 256.07, 260.36, 245.36, 217.5, 242.86, 230.71, 123.57, 153.57, 173.57, 175.71, 150.71, 154.29, 133.57, 124.29, 119.29, 112.86, 101.43, 95.71, 100.0, 96.43, 102.14, 86.43, 102.86, 60.71, 53.57, 63.57, 62.14, 55.0, 48.57, 55.71, 55.0, 55.0, 59.29, 60.0, 65.0, 48.57, 45.71, 12.86, 3.57, 0.71, 0.71, 0.0, 0.0, 0.0, 0.0, 0.0, 0.71, 0.71, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.43, 4.64, 0.36, 0.71, 4.64, 1.79, 3.57, 0.36, 0.36, 0.0, 0.0, 0.0, 0.0, 0.36, 0.36, 0.0, 1.43, 0.71, 0.0, 0.0, 0.71, 0.0, 0.36, 16.79, 25.71, 23.57, 47.5, 83.57, 57.5, 73.57, 84.64, 95.36, 101.79, 121.79, 129.29, 115.71, 121.43, 123.21, 317.5, 295.36, 253.93, 237.86, 256.07, 260.36, 245.36, 217.5, 242.86, 230.71]
+    #solarForecast = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.5, 6.71, 78.05, 78.05, 78.05, 78.05, 141.86, 141.86, 141.86, 141.86, 264.33, 264.33, 264.33, 264.33, 326.81, 326.81, 326.81, 326.81, 360.75, 360.75, 360.75, 360.75, 472.2, 472.2, 472.2, 472.2, 453.98, 453.98, 453.98, 453.98, 362.26, 362.26, 362.26, 362.26, 321.52, 321.52, 321.52, 321.52, 105.11, 105.11, 105.11, 105.11, 31.17, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 3.0, 15.73, 210.82, 210.82, 210.82, 210.82, 431.02, 431.02, 431.02, 431.02, 622.24, 622.24, 622.24, 622.24, 744.35, 744.35, 744.35, 744.35, 785.77, 785.77, 785.77, 785.77, 771.45, 771.45, 771.45, 771.45, 678.9, 678.9, 678.9, 678.9, 516.03, 516.03, 516.03, 516.03, 317.11, 317.11, 317.11, 317.11, 103.91, 103.91, 103.91, 103.91, 31.17, 0.0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    #print(sum(baseForecast))
+    #solarForecast = [0]*192
+    #print(sum(solarForecast))
+
+
+
+    solarForecast = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.5, 6.16, 80.14, 80.14, 80.14, 80.14, 144.18, 144.18, 144.18, 144.18, 266.67, 266.67, 266.67, 266.67, 330.13, 330.13, 330.13, 330.13, 374.62, 374.62, 374.62, 374.62, 482.84, 482.84, 482.84, 482.84, 464.04, 464.04, 464.04, 464.04, 374.93, 374.93, 374.93, 374.93, 331.0, 331.0, 331.0, 331.0, 107.96, 107.96, 107.96, 107.96, 31.17, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 3.0, 14.59, 207.65, 207.65, 207.65, 207.65, 422.78, 422.78, 422.78, 422.78, 620.13, 620.13, 620.13, 620.13, 745.72, 745.72, 745.72, 745.72, 801.83, 801.83, 801.83, 801.83, 784.19, 784.19, 784.19, 784.19, 691.59, 691.59, 691.59, 691.59, 531.03, 531.03, 531.03, 531.03, 326.56, 326.56, 326.56, 326.56, 106.72, 106.72, 106.72, 106.72, 31.17, 0.0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] 
+
     currentBatteryState = 14000
     batterySize = 14000
 
-    user_model = UserProfile(weight1, weight2, lowerLimit, maximumLimit, shutOffRisk, idealReserveThreshold, solarForecast, baseForecast, currentBatteryState, batterySize)
+    user_model = UserProfile(weight1, weight2, weight3, lowerLimit, maximumLimit, shutOffRisk, idealReserveThreshold, solarForecast, baseForecast, currentBatteryState, batterySize)
     best_threshold, best_score, best_solar, best_battery, utility, battery = find_optimal_threshold(user_model)
     
     #get user flexible loads (should pull from db and get required energy cost and duration of load)
@@ -303,21 +317,23 @@ if __name__ == "__main__":
     good_times = find_good_times(user_model, best_threshold, TeslaEV)
 
     #output ideal schedule
-    best_schedule, best_schedule_score, best_solarFL, best_batteryFL = find_optimal_fl_schedule(user_model, best_threshold, flexible_loads) #should return 2d array [ [1 (should charge), 20 (timeOfDay)], [0 (should not charge), 0 (irrelevant)]]
+    #best_schedule, best_schedule_score, best_solarFL, best_batteryFL = find_optimal_fl_schedule(user_model, best_threshold, flexible_loads) #should return 2d array [ [1 (should charge), 20 (timeOfDay)], [0 (should not charge), 0 (irrelevant)]]
 
     #user preferred schedule
     user_preferred_schedule = [["Asdf", 1, 21],["Asdf", 1, 21]] #preferred start times for TeslaEV/etc pulled from database
 
     #output acceptable boolean
-    shouldCharge = should_charge(user_model, best_threshold, flexible_loads, user_preferred_schedule, best_schedule_score)
+    #shouldCharge = should_charge(user_model, best_threshold, flexible_loads, user_preferred_schedule, best_schedule_score)
 
     #print(computeEnergyFlow(solarForecast, baseForecast))
-    #print(good_times)
+    #print(good_times[0:96])
+    #print(good_times.index(1))
+    #print(good_times.index(0))
+    print(computeEnergyFlow(solarForecast, baseForecast))
     print(best_threshold, best_score, utility)
     #print(best_schedule, best_schedule_score)
     #print(shouldCharge)
     #print(calculate_shutOffRisk([]))
-    #print(calculate_base_load("jasun_chen@ucsb.edu", 0, 100000))
 
     #how to handle charging into next day? 
     # [['2022-01-25 06:54:00', 0], ['2022-01-25 06:57:00', 20], ['2022-01-25 07:00:00', 111], 
