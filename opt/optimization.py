@@ -97,7 +97,7 @@ def computePredictedBatteryChargeAndTotalCost(currentCharge, energyFlow, thresho
             excessBattery[index] += currentCharge
             currentCharge -= excess
 
-        battery[index] = round(currentCharge,3)
+        battery[index] = round(currentCharge,3)/1000
         #print(utility[index])
         
 
