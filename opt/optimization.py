@@ -58,7 +58,7 @@ def computePredictedBatteryChargeAndTotalCost(currentCharge, energyFlow, thresho
 
     #todo: implement maxcharge/maxdischarge
     maxCharge = 0.06 * maxStorage #825 #watt hours per 15 min increment or ~3.3 kWh
-    maxDischarge = 0.138 * maxStorage #1925 #watt hours per 15 min increment or ~7.7 kWh
+    maxDischarge = -0.138 * maxStorage #1925 #watt hours per 15 min increment or ~7.7 kWh
     
     excessSolar = [0]*192 #if solar generation is too high
     excessBattery = [0]*192 #if battery storage is capped out
@@ -96,9 +96,8 @@ def computePredictedBatteryChargeAndTotalCost(currentCharge, energyFlow, thresho
             costRenewableIntegration += excess
             excessBattery[index] += currentCharge
             currentCharge -= excess
-
-        battery[index] = round(currentCharge,3)/1000
-        #print(utility[index])
+        utility[index] = round((utility[index]/1000),4)
+        battery[index] = round(currentCharge/1000,4)
         
 
     # cost to grid
@@ -302,8 +301,8 @@ if __name__ == "__main__":
 
     solarForecast = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.5, 6.16, 80.14, 80.14, 80.14, 80.14, 144.18, 144.18, 144.18, 144.18, 266.67, 266.67, 266.67, 266.67, 330.13, 330.13, 330.13, 330.13, 374.62, 374.62, 374.62, 374.62, 482.84, 482.84, 482.84, 482.84, 464.04, 464.04, 464.04, 464.04, 374.93, 374.93, 374.93, 374.93, 331.0, 331.0, 331.0, 331.0, 107.96, 107.96, 107.96, 107.96, 31.17, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 3.0, 14.59, 207.65, 207.65, 207.65, 207.65, 422.78, 422.78, 422.78, 422.78, 620.13, 620.13, 620.13, 620.13, 745.72, 745.72, 745.72, 745.72, 801.83, 801.83, 801.83, 801.83, 784.19, 784.19, 784.19, 784.19, 691.59, 691.59, 691.59, 691.59, 531.03, 531.03, 531.03, 531.03, 326.56, 326.56, 326.56, 326.56, 106.72, 106.72, 106.72, 106.72, 31.17, 0.0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] 
 
-    currentBatteryState = 14000
-    batterySize = 14000
+    currentBatteryState = 5000
+    batterySize = 5000
 
     user_model = UserProfile(weight1, weight2, weight3, lowerLimit, maximumLimit, shutOffRisk, idealReserveThreshold, solarForecast, baseForecast, currentBatteryState, batterySize)
     best_threshold, best_score, best_solar, best_battery, utility, battery = find_optimal_threshold(user_model)
@@ -329,7 +328,7 @@ if __name__ == "__main__":
     #print(good_times[0:96])
     #print(good_times.index(1))
     #print(good_times.index(0))
-    print(computeEnergyFlow(solarForecast, baseForecast))
+    #print(computeEnergyFlow(solarForecast, baseForecast))
     print(best_threshold, best_score, utility)
     #print(best_schedule, best_schedule_score)
     #print(shouldCharge)
