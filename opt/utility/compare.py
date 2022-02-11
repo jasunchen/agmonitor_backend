@@ -19,6 +19,7 @@ def get_data(start_time):
 
     return arr
 
+#should truncate the predicted array to 96 (first 96 predicted values)
 def linear_fit(real, predicted):
     real_0, pred_0 = real[0], predicted[0]
     real_max = max(real)
@@ -27,6 +28,7 @@ def linear_fit(real, predicted):
     b = pred_0 - m * real_0
     return m, b
 
+#length of predicted does not matter
 def apply_fit(m,b, predicted):
     return [(i - b)/m for i in predicted]
 
