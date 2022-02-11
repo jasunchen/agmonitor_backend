@@ -41,7 +41,7 @@ def getSolarData(latitude: float, longitude: float, declination: float, azimuth:
         return (400, response['message']['text'])
 
 if __name__ == "__main__":
-    latitude = -119.6982
+    latitude = -90
     longitude = 34.4208
     declination = 1.0
     azimuth = 2.0

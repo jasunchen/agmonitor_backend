@@ -4,7 +4,7 @@ import json
 
 from calendar import timegm
 
-ASSET_ID =  2
+ASSET_ID =  1
 FILE_NAME = "subset.csv"
 
 file = open(FILE_NAME, "r").read()
