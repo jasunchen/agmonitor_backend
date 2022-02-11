@@ -60,7 +60,7 @@ def optimization(email):
         best_threshold, best_score, best_solar, best_battery, utility, battery = find_optimal_threshold(user_model)
         tmp_user.pred_opt_threshold = best_threshold
         tmp_user.pred_battery_level = battery
-        tmp_user.utility = utility 
+        tmp_user.utility = [item * -1 for item in utility] 
         
         # save weather alerts
         tmp_user.text = alerts
