@@ -18,7 +18,7 @@ def optimization(email):
     try:
         low_limit = tmp_user.low_limit
         max_limit = tmp_user.max_limit
-        battery_size = tmp_user.battery_size
+        battery_size = tmp_user.battery_size * 1000 #convert kwh to watt hours
         cost_or_shutoff = tmp_user.cost_or_shutoff
         hours_of_power = tmp_user.hours_of_power
         longitude = tmp_user.longitude
@@ -60,7 +60,7 @@ def optimization(email):
         best_threshold, best_score, best_solar, best_battery, utility, battery = find_optimal_threshold(user_model)
         tmp_user.pred_opt_threshold = best_threshold
         tmp_user.pred_battery_level = battery
-        tmp_user.utility = [round(item/1000,2) for item in utility]
+        tmp_user.utility = utility 
         
         # save weather alerts
         tmp_user.text = alerts
