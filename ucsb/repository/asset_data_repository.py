@@ -29,38 +29,48 @@ def get_asset_data(request):
             {"message": "Request has invalid parameter not in {}".format(params)}, 
             status = 400)
 
-    id = request.query_params.get('id')
+    idList = request.query_params.get('id').split(",")
     start = request.query_params.get('start')
     end = request.query_params.get('end')
     page_number = request.query_params.get('page')
 
-    # Check for Invalid User Id
-    try:    
-        tmp_asset = user_asset.objects.get(id=id)
-    except(user_asset.DoesNotExist):
-        return Response({"detail": "Asset does not exist"}, status = 400)
+    responseList = list()
 
-    result = Paginator(
-                asset_data
-                .objects
-                .filter(
-                    asset_id=tmp_asset, 
-                    start_time__gte=start, 
-                    start_time__lte=end)
-                .values(
-                    'interval', 
-                    'consumed_energy', 
-                    'produced_energy', 
-                    'start_time', 
-                    'asset_id'), 
-                96)
+    # Check for Invalid User Id
+    for assetId in idList:
+        try:
+            asset = user_asset.objects.get(id=assetId)
+            assetType = asset.type_of_asset
+            tmp_asset = user_asset.objects.get(id=assetId)
+        except:
+            return Response({"detail":"Asset does not exist"}, status=400)
+
+        result = Paginator(
+            asset_data
+            .objects
+            .filter(
+                asset_id=tmp_asset, 
+                start_time__gte=start, 
+                start_time__lte=end)
+            .values(
+                'interval', 
+                'consumed_energy', 
+                'produced_energy', 
+                'start_time', 
+                'asset_id'), 
+            96)
         
-    page = result.get_page(page_number)
-    return Response({
+        page = result.get_page(page_number)
+
+        responseList.append({
+        "id" : assetId,
+        "type" : assetType,
         "data" : page.object_list,
         "has_previous" : page.has_previous(),
         "has_next" : page.has_next()
-        })
+        })    
+
+    return Response(responseList, 200)
 
 @api_view(['DELETE'])
 def delete_asset_data(request):

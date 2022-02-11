@@ -23,9 +23,9 @@ def optimization(email):
         hours_of_power = tmp_user.hours_of_power
         longitude = tmp_user.longitude
         latitude = tmp_user.latitude
-        alert = get_alerts(latitude, longitude)
+        alerts = get_alerts(latitude, longitude)
         # tmp_user.text = json.dumps(alert)
-        risk = calculate_shutOffRisk(alert)
+        risk = calculate_shutOffRisk(alerts)
         solar = []
         for i in range(0, 2866, 15):
             solar.append([i, 0])
@@ -39,6 +39,7 @@ def optimization(email):
             for i in range(192):
                 solar[i][1] += data[1][i][1]
         base_load = calculate_base_load(tmp_user, 0, 100000000000000000)
+
         ave_base_load = 0
         for i in range(96):
             ave_base_load += base_load[i][1]
@@ -47,16 +48,20 @@ def optimization(email):
         base_load = base_load * 2
         weight1 = 0.7
         weight2 = 0.6
-        solar_forecast = [item[1] for item in solar]
+        solar_forecast = [round(item[1], 2) for item in solar]
         tmp_user.pred_solar_generation = json.dumps(solar_forecast)
-        base_forecast = [item[1] for item in base_load]
-        tmp_user.pred_base_load = json.dumps(base_forecast)
+        base_forecast = [round(item[1], 2) for item in base_load]
+        tmp_user.pred_baseload = json.dumps(base_forecast)
         cur_battery = 14000
 
         user_model = UserProfile(weight1, weight2, low_limit, max_limit, risk, idealReserveThreshold, solar_forecast, base_forecast, cur_battery, battery_size)
-        best_threshold, best_score, best_solar, best_battery = find_optimal_threshold(user_model)
+        best_threshold, best_score, best_solar, best_battery, utility, battery = find_optimal_threshold(user_model)
         tmp_user.pred_opt_threshold = best_threshold
+        tmp_user.pred_battery_level = battery
+        tmp_user.utility = utility
         
+        # save weather alerts
+        tmp_user.text = alerts
 
         #get user flexible loads (should pull from db and get required energy cost and duration of load)
         TeslaEV = FlexibleLoad("Tesla EV",10000, 10) #example
@@ -64,7 +69,7 @@ def optimization(email):
         flexible_loads = [TeslaEV, SomethingElse] #array of all user flexible loads
 
         #output good times for user visualization
-        good_times = find_good_times(best_solar, best_battery)
+        good_times = find_good_times(user_model, best_threshold, TeslaEV)
         tmp_user.pred_good_time = json.dumps(good_times)
 
         #output ideal schedule
