@@ -2,9 +2,12 @@ from opt.utility.send_email import send_email
 # from ucsb.models import *
 from apscheduler.schedulers.background import BackgroundScheduler
 from opt.utility.send_message import send_message
+from opt.utility.schedulerHelper import *
 import json
 
-message = "Hello, this is a daily automated notification. Based on weather forecasts and historical data for tomorrow, the ideal reserve percentage for your battery is {} percent. Please visit https://agmonitor-pina-colada.herokuapp.com/ for more details."
+
+message = "Hello, this is a daily automated notification. Based on weather forecasts and historical data for tomorrow, the ideal reserve percentage for your battery is {} percent.{}Please visit https://agmonitor-pina-colada.herokuapp.com/ for more details."
+bestTimes = " The best times for you to charge tomorrow are {}. "
 
 def optimization(email):
     from ucsb.models import user,user_asset
@@ -85,8 +88,18 @@ def optimization(email):
         shouldCharge = should_charge(user_model, best_threshold, flexible_loads, user_preferred_schedule, best_schedule_score)
         tmp_user.should_charge = shouldCharge
         tmp_user.save()
-        send_email(tmp_user.user_email, message.format(tmp_user.pred_opt_threshold))
-        send_message(message.format(tmp_user.pred_opt_threshold), tmp_user.phone_number)
+
+        #construct good times message
+        userMsg = bestTimes.format(convertRangeToTimes(findRange(good_times)))
+
+        #todo only output when should charge
+        if True:
+            send_email(tmp_user.user_email, message.format(tmp_user.pred_opt_threshold, userMsg))
+            send_message(message.format(tmp_user.pred_opt_threshold, userMsg), tmp_user.phone_number)
+        else:
+            send_email(tmp_user.user_email, message.format(tmp_user.pred_opt_threshold, " "))
+            send_message(message.format(tmp_user.pred_opt_threshold, " "), tmp_user.phone_number)
+
     except Exception as e:
         print(e)
         return "failed"
