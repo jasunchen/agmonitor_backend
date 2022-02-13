@@ -1,10 +1,10 @@
 import requests
 import json
 
-relevantAlerts = ["Avalanche", "Snow", "Rain", "Wind", "Blizzard", "Flood", "Hurricane", "Thunderstorm", "Storm", "Tornado", "Gale"]
-
+relevantAlerts = ["Avalanche", "Snow", "Rain", "Wind", "Blizzard", "Flood", "Hurricane", "Thunderstorm", "Storm", "Tornado", "Gale"] #just storm alerts
+ 
   
-def get_alerts(latitude: float, longitude: float):
+def get_alerts(latitude: float, longitude: float):      
         response = requests.get('https://api.weatherbit.io/v2.0/alerts?key=e4ab5eb2ee6b4d2db1bd229c8800daf6&lat=' + str(latitude) +'&lon=' + str(longitude))
         alerts = json.loads(response.text)['alerts']
         parsedAlerts = []
