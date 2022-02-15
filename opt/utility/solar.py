@@ -30,8 +30,8 @@ def getSolarData(latitude: float, longitude: float, declination: float, azimuth:
             
             # calculate energy generated between index and previousIndex
             # assume energy generated equally through time period (this is not great, but workable)
-            # for i in range(previousIndex, index):
-            #     result[i][1] += energyGenerated / (index - previousIndex)
+            for i in range(previousIndex, index):
+                result[i][1] += energyGenerated / (index - previousIndex)
             
             previousValue = v
             previousIndex = index

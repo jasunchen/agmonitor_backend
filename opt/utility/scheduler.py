@@ -7,7 +7,7 @@ import json
 
 
 message = "Hello, this is a daily automated notification. Based on weather forecasts and historical data for tomorrow, the ideal reserve percentage for your battery is {} percent.{}Please visit https://agmonitor-pina-colada.herokuapp.com/ for more details."
-bestTimes = " The best times for you to charge tomorrow are {}. "
+bestTimes = " The best times for you to charge tomorrow is from {}. "
 
 def optimization(email):
     from ucsb.models import user,user_asset
@@ -54,9 +54,12 @@ def optimization(email):
         weight3 = 1
         solar_forecast = [round(item[1], 2) for item in solar]
         tmp_user.pred_solar_generation = json.dumps(solar_forecast)
+        print("Solar Forecast Done.")
+
         base_forecast = [round(item[1], 2) for item in base_load]
         tmp_user.pred_baseload = json.dumps(base_forecast)
         cur_battery = battery_size
+        print("Battery Forecast Done.")
 
         solar_forecast = [item * 1000 for item in solar_forecast] #convert to watt hours
         user_model = UserProfile(weight1, weight2, weight3, low_limit, max_limit, risk, idealReserveThreshold, solar_forecast, base_forecast, cur_battery, battery_size)
@@ -64,9 +67,7 @@ def optimization(email):
         tmp_user.pred_opt_threshold = best_threshold
         tmp_user.pred_battery_level = battery
         tmp_user.utility = [item * -1 for item in utility] 
-        
-        # save weather alerts
-        tmp_user.text = alerts
+        print("Optimal Threshold Done.")
 
         #get user flexible loads (should pull from db and get required energy cost and duration of load)
         TeslaEV = FlexibleLoad("Tesla EV",10000, 10) #example
@@ -76,10 +77,12 @@ def optimization(email):
         #output good times for user visualization
         good_times = find_good_times(user_model, best_threshold, TeslaEV)
         tmp_user.pred_good_time = json.dumps(good_times)
+        print("Good Times Done.")
 
         #output ideal schedule
         best_schedule, best_schedule_score, best_solarFL, best_batteryFL = find_optimal_fl_schedule(user_model, best_threshold, flexible_loads) #should return 2d array [ [1 (should charge), 20 (timeOfDay)], [0 (should not charge), 0 (irrelevant)]]
         tmp_user.pred_best_schedule = json.dumps(best_schedule)
+        print("Best Schedule Done.")
 
         #user preferred schedule
         user_preferred_schedule = [["Tesla EV", 1, 10], ["Something Else", 0, 0]] #preferred start times for TeslaEV/etc pulled from database
@@ -87,10 +90,21 @@ def optimization(email):
         #output acceptable boolean
         shouldCharge = should_charge(user_model, best_threshold, flexible_loads, user_preferred_schedule, best_schedule_score)
         tmp_user.should_charge = shouldCharge
+        #construct good times message
+        # save weather alerts and good times
+        goodTimesRange = convertRangeToTimes(findRange(good_times))
+
+        text_dict = {
+            "goodTimesRange" : goodTimesRange,
+            "alerts" : alerts
+        }
+        print("Should Charge Done.")
+        tmp_user.text = json.dumps(text_dict)
         tmp_user.save()
 
-        #construct good times message
-        userMsg = bestTimes.format(convertRangeToTimes(findRange(good_times)))
+        print("Data Saved.")
+
+        userMsg = bestTimes.format(goodTimesRange)
 
         #todo only output when should charge
         if True:
