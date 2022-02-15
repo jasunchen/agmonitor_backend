@@ -17,7 +17,7 @@ for line in file.split("\n")[1:]:
                 "start_time" : t,
                 "interval": 15,
                 "consumed_energy": float(consumed_energy),
-                "produced_energy": float(produced_energy)
+                "produced_energy": 0.0
         })
 
 headers = {'content-type' : 'application/json'}

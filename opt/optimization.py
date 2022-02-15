@@ -259,6 +259,7 @@ def find_optimal_fl_schedule(userProfile: UserProfile, threshold, flexibleLoads:
     best_solar, best_battery = [],[]
 
     for epoch in range(10):
+        print("Epoch", epoch)
         for i in range(10000):
             candidate = create_candidate_schedule(curr, step_size, epoch)
             candidate_eval, excessSolar, excessBattery = flexibleLoadScheduleCost(userProfile, threshold, flexibleLoads, candidate)
