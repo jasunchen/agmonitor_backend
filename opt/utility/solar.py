@@ -1,13 +1,16 @@
 import requests
 from datetime import datetime
 
+
 def convertTime(s):
-    return int((datetime.strptime(s, '%Y-%m-%d %H:%M:%S') - datetime(1970,1,1)).total_seconds())
+    return int((datetime.strptime(s, '%Y-%m-%d %H:%M:%S') - datetime(1970, 1, 1)).total_seconds())
+
 
 def getSolarData(latitude: float, longitude: float, declination: float, azimuth: float, power: float):
     response = requests.get(
-        headers={'content-type' : 'application/json'},
-        url='https://api.forecast.solar/estimate/{}/{}/{}/{}/{}'.format(latitude, longitude, declination, azimuth, power), 
+        headers={'content-type': 'application/json'},
+        url='https://api.forecast.solar/estimate/{}/{}/{}/{}/{}'.format(
+            latitude, longitude, declination, azimuth, power),
         verify=False
     )
     response = response.json()
@@ -27,18 +30,19 @@ def getSolarData(latitude: float, longitude: float, declination: float, azimuth:
 
             # calculate energy generated
             energyGenerated = max(0, v - previousValue)
-            
+
             # calculate energy generated between index and previousIndex
             # assume energy generated equally through time period (this is not great, but workable)
-            # for i in range(previousIndex, index):
-            #     result[i][1] += energyGenerated / (index - previousIndex)
-            
+            for i in range(previousIndex, index):
+                result[i][1] += energyGenerated / (index - previousIndex)
+
             previousValue = v
             previousIndex = index
 
         return (200, result)
     else:
         return (400, response['message']['text'])
+
 
 if __name__ == "__main__":
     latitude = 34.413963
