@@ -1,16 +1,23 @@
 import requests
 from datetime import datetime
+import environ
+
+env = environ.Env()
+
 
 def convertTime(s):
     return int((datetime.strptime(s, '%Y-%m-%d %H:%M:%S') - datetime(1970,1,1)).total_seconds())
 
 def getSolarData(latitude: float, longitude: float, declination: float, azimuth: float, power: float):
+    solar_api_key = env('SOLARAPIKEY')
+    #solar_api_key = 'insert here'
     response = requests.get(
         headers={'content-type' : 'application/json'},
-        url='https://api.forecast.solar/estimate/{}/{}/{}/{}/{}'.format(latitude, longitude, declination, azimuth, power), 
+        url='https://api.forecast.solar/{}/estimate/{}/{}/{}/{}/{}'.format(solar_api_key, latitude, longitude, declination, azimuth, power), 
         verify=False
     )
     response = response.json()
+    print(response)
 
     if response['message']['code'] == 0:
         result = [[15 * t, 0] for t in range(192)]
