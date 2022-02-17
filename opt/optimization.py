@@ -211,17 +211,6 @@ def flexibleLoadScheduleCost(userProfile: UserProfile, threshold, flexibleLoads:
     cost = (costGrid/maxCostGrid) + (costRenewableIntegration/maxCostRenewableIntegration)
     return (cost, excessSolar, excessBattery)
 
-# def find_good_times(best_solar, best_battery):
-#     #for user visualization
-#     schedule = [0]*96
-#     for i in range(96):
-#         schedule[i] += best_solar[i]
-#         if (best_battery[i] > 0):
-#             for j in range(i+1):
-#                 schedule[j] += best_battery[i]/(i+1)
-#     maxExcess = max(schedule) + 0.01
-#     return [val / maxExcess for val in schedule]
-
 def find_good_times(userProfile: UserProfile, threshold, flexibleLoad: FlexibleLoad): #good times to start charging for one flexible load 
     schedule = [0]*96
     for i in range(96): 
@@ -260,7 +249,7 @@ def find_optimal_fl_schedule(userProfile: UserProfile, threshold, flexibleLoads:
 
     for epoch in range(10):
         print("Epoch", epoch)
-        for i in range(10000):
+        for i in range(1000):
             candidate = create_candidate_schedule(curr, step_size, epoch)
             candidate_eval, excessSolar, excessBattery = flexibleLoadScheduleCost(userProfile, threshold, flexibleLoads, candidate)
 

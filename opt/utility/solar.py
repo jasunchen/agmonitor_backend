@@ -10,7 +10,7 @@ def convertTime(s):
 
 def getSolarData(latitude: float, longitude: float, declination: float, azimuth: float, power: float):
     solar_api_key = env('SOLARAPIKEY')
-    #solar_api_key = 'insert here'
+    #solar_api_key = ''
     response = requests.get(
         headers={'content-type' : 'application/json'},
         url='https://api.forecast.solar/{}/estimate/{}/{}/{}/{}/{}'.format(solar_api_key, latitude, longitude, declination, azimuth, power), 
@@ -48,8 +48,8 @@ def getSolarData(latitude: float, longitude: float, declination: float, azimuth:
         return (400, response['message']['text'])
 
 if __name__ == "__main__":
-    latitude = 34.413963
-    longitude = -119.848946
+    latitude = 34.463829
+    longitude = -119.740647
     declination = 0.0
     azimuth = 180.0
     power = 3000.0
