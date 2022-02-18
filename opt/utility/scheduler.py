@@ -52,11 +52,11 @@ def optimization(email):
         weight1 = 1
         weight2 = 1
         weight3 = 1
-        solar_forecast = [round(item[1], 2) for item in solar]
+        solar_forecast = [round(item[1] / 1000, 2) for item in solar]
         tmp_user.pred_solar_generation = json.dumps(solar_forecast)
         print("Solar Forecast Done.")
 
-        base_forecast = [round(item[1], 2) for item in base_load]
+        base_forecast = [round(item[1] / 1000, 2) for item in base_load]
         tmp_user.pred_baseload = json.dumps(base_forecast)
         cur_battery = battery_size
         print("Battery Forecast Done.")
