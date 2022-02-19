@@ -5,9 +5,8 @@ from opt.utility.send_message import send_message
 from opt.utility.schedulerHelper import *
 import json
 
-
-message = "Hello, this is a daily automated notification. Based on weather forecasts and historical data for tomorrow, the ideal reserve percentage for your battery is {} percent.{}Please visit https://agmonitor-pina-colada.herokuapp.com/ for more details."
-bestTimes = " The best times for you to charge tomorrow is from {}. "
+ShouldNotChargeMessage = "Based on weather forecasts and historical data for tomorrow, the ideal reserve percentage for your battery is {} percent, and you should avoid using your flexible loads. However, the best times for you to use energy tomorrow is from {}. Please visit https://agmonitor-pina-colada.herokuapp.com/ for more details."
+ShouldChargeMessage = "Based on weather forecasts and historical data for tomorrow, the ideal reserve percentage for your battery is {} percent, and you should use your flexible loads. The best times for you to use energy tomorrow is from {}. Please visit https://agmonitor-pina-colada.herokuapp.com/ for more details."
 
 def optimization(email):
     from ucsb.models import user,user_asset
@@ -75,7 +74,7 @@ def optimization(email):
         flexible_loads = [TeslaEV, SomethingElse] #array of all user flexible loads
 
         #output good times for user visualization
-        good_times = find_good_times(user_model, best_threshold, TeslaEV)
+        good_times, costCharge = find_good_times(user_model, best_threshold, TeslaEV)
         tmp_user.pred_good_time = json.dumps(good_times)
         print("Good Times Done.")
 
@@ -85,34 +84,37 @@ def optimization(email):
         print("Best Schedule Done.")
 
         #user preferred schedule
-        user_preferred_schedule = [["Tesla EV", 1, 10], ["Something Else", 0, 0]] #preferred start times for TeslaEV/etc pulled from database
+        #user_preferred_schedule = [["Tesla EV", 1, 10], ["Something Else", 0, 0]] #preferred start times for TeslaEV/etc pulled from database
 
         #output acceptable boolean
-        shouldCharge = should_charge(user_model, best_threshold, flexible_loads, user_preferred_schedule, best_schedule_score)
+        shouldCharge = should_charge(user_model, best_threshold, costCharge)
         tmp_user.should_charge = shouldCharge
-        #construct good times message
-        # save weather alerts and good times
-        goodTimesRange = convertRangeToTimes(findRange(good_times))
+        print("Should Charge Done.")
 
+
+        #construct good times message
+        goodTimesRange = convertRangeToTimes(findRange(good_times))
+        if (shouldCharge):
+            userMsg = ShouldChargeMessage.format(best_threshold, goodTimesRange)
+        else:
+            userMsg = ShouldNotChargeMessage.format(best_threshold, goodTimesRange)
+
+        # save weather alerts and good times
         text_dict = {
             "goodTimesRange" : goodTimesRange,
-            "alerts" : alerts
+            "alerts" : alerts,
+            "recommendationMessage": userMsg
         }
-        print("Should Charge Done.")
         tmp_user.text = json.dumps(text_dict)
         tmp_user.save()
 
         print("Data Saved.")
 
-        userMsg = bestTimes.format(goodTimesRange)
+        #todo notification settings
+        send_email(tmp_user.user_email, userMsg)
+        send_message(userMsg, tmp_user.phone_number)
 
-        #todo only output when should charge
-        if True:
-            send_email(tmp_user.user_email, message.format(tmp_user.pred_opt_threshold, userMsg))
-            send_message(message.format(tmp_user.pred_opt_threshold, userMsg), tmp_user.phone_number)
-        else:
-            send_email(tmp_user.user_email, message.format(tmp_user.pred_opt_threshold, " "))
-            send_message(message.format(tmp_user.pred_opt_threshold, " "), tmp_user.phone_number)
+        print("Notifications sent.")
 
     except Exception as e:
         print(e)
