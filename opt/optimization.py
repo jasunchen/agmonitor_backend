@@ -215,7 +215,7 @@ def find_good_times(userProfile: UserProfile, threshold, flexibleLoad: FlexibleL
         schedule[i] = candidate_eval
     minCost = min(schedule)
     maxCost = max(schedule)
-    return [round (1 - ((val - minCost) / max(maxCost - minCost, 0.01)), 2) for val in schedule]
+    return ([round (1 - ((val - minCost) / max(maxCost - minCost, 0.01)), 2) for val in schedule], minCost)
 
 
 
@@ -261,10 +261,14 @@ def find_optimal_fl_schedule(userProfile: UserProfile, threshold, flexibleLoads:
 
     return best, best_eval, best_solar, best_battery
 
-def should_charge(userProfile: UserProfile, threshold, flexibleLoads: List[FlexibleLoad], schedule: List[List[int]], optimum: float):
-    #is given schedule close enough to optimum? 
-    cost = flexibleLoadScheduleCost(userProfile, threshold, flexibleLoads, schedule)[0]
-    return (cost-optimum <= 0.2)
+# def should_charge(userProfile: UserProfile, threshold, flexibleLoads: List[FlexibleLoad], schedule: List[List[int]], optimum: float):
+#     #is performance better than not charging? 
+#     cost = flexibleLoadScheduleCost(userProfile, threshold, flexibleLoads, schedule)[0]
+#     return (cost-optimum <= 0.2)
+def should_charge(userProfile: UserProfile, threshold, costOfSchedule):
+    cost = flexibleLoadScheduleCost(userProfile, threshold, [], [[]])[0]
+    print(cost)
+    return cost > costOfSchedule
 
 if __name__ == "__main__":
 
@@ -300,7 +304,8 @@ if __name__ == "__main__":
     flexible_loads = [TeslaEV, SomethingElse] #array of all user flexible loads
 
     #output good times for user visualization
-    good_times = find_good_times(user_model, best_threshold, TeslaEV)
+    good_times, costCharge = find_good_times(user_model, best_threshold, TeslaEV)
+    print(costCharge)
 
     #output ideal schedule
     #best_schedule, best_schedule_score, best_solarFL, best_batteryFL = find_optimal_fl_schedule(user_model, best_threshold, flexible_loads) #should return 2d array [ [1 (should charge), 20 (timeOfDay)], [0 (should not charge), 0 (irrelevant)]]
@@ -317,6 +322,8 @@ if __name__ == "__main__":
     #print(good_times.index(0))
     #print(computeEnergyFlow(solarForecast, baseForecast))
     print(best_threshold, best_score, utility)
+
+    print(should_charge(user_model, best_threshold, costCharge))
     #print(best_schedule, best_schedule_score)
     #print(shouldCharge)
     #print(calculate_shutOffRisk([]))
