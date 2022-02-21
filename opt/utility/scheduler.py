@@ -68,16 +68,18 @@ def optimization(email):
         print("Optimal Threshold Done.")
 
         #get user flexible loads (should pull from db and get required energy cost and duration of load)
-        flexible_loads = user_asset.objects.filter(user=tmp_user, type_of_asset='flexible')
+        flexible_assets = user_asset.objects.filter(user=tmp_user, type_of_asset='flexible')
+        flexible_loads = []
         
         demand = 0
         duration = 1
-        for f in flexible_loads:
+        for f in flexible_assets:
             demand += int(f.demand)
             duration = max(duration, int(f.duration)) #assume we do everything at the same time
+            flexible_loads.append(FlexibleLoad(f.asset_name, int(f.demand), max(1, int(f.duration)//900)))
 
-        flexible_aggregate = FlexibleLoad('Flexible Aggregate', demand * 1000, duration)
-
+        flexible_aggregate = FlexibleLoad('Flexible Aggregate', demand * 1000, max(1,duration//900))
+        
         #output good times for user visualization
         good_times, costCharge = find_good_times(user_model, best_threshold, flexible_aggregate)
         tmp_user.pred_good_time = json.dumps(good_times)
@@ -122,7 +124,7 @@ def optimization(email):
         print("Notifications sent.")
 
     except Exception as e:
-        print(e)
+        print('The error is', e)
         return "failed"
 
 

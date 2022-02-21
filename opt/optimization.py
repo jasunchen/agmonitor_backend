@@ -147,6 +147,7 @@ def find_optimal_threshold(userProfile: UserProfile):
     return [best, best_eval, best_solar, best_battery, utility, battery]
 
 def flexibleLoadEnergyFlow(energyFlow, flexibleLoads: List[FlexibleLoad], schedule: List[List[int]]):
+    maxTime = len(energyFlow) - 1
     for i in range(len(flexibleLoads)):
         loadCost = flexibleLoads[i].energyCost
         duration = flexibleLoads[i].duration
@@ -155,7 +156,7 @@ def flexibleLoadEnergyFlow(energyFlow, flexibleLoads: List[FlexibleLoad], schedu
 
         if isOn == 1:
             avgConsumption = loadCost/duration
-            for t in range(beginTime, beginTime+duration):
+            for t in range(beginTime, min(beginTime+duration, maxTime)):
                 energyFlow[t] -= avgConsumption
     return energyFlow
 
