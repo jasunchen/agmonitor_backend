@@ -74,7 +74,7 @@ def optimization(email):
         duration = 1
         for f in flexible_loads:
             demand += int(f.demand)
-            duration += max(duration, int(f.duration)) #assume we do everything at the same time
+            duration = max(duration, int(f.duration)) #assume we do everything at the same time
 
         flexible_aggregate = FlexibleLoad('Flexible Aggregate', demand * 1000, duration)
 
