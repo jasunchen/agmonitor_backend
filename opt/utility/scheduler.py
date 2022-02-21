@@ -68,13 +68,13 @@ def optimization(email):
         print("Optimal Threshold Done.")
 
         #get user flexible loads (should pull from db and get required energy cost and duration of load)
-        flexible_assets = user_asset.objects.filter(user=tmp_user, type_of_asset='flexible')
+        flexible_loads = user_asset.objects.filter(user=tmp_user, type_of_asset='flexible')
         
         demand = 0
-        duration = 0
-        for f in flexible_assets:
+        duration = 1
+        for f in flexible_loads:
             demand += int(f.demand)
-            duration += int(f.duration)
+            duration += max(duration, int(f.duration)) #assume we do everything at the same time
 
         flexible_aggregate = FlexibleLoad('Flexible Aggregate', demand * 1000, duration)
 
