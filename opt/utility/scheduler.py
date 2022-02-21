@@ -28,9 +28,8 @@ def optimization(email):
         alerts = get_alerts(latitude, longitude)
         # tmp_user.text = json.dumps(alert)
         risk = calculate_shutOffRisk(alerts)
-        solar = []
-        for i in range(0, 2866, 15):
-            solar.append([i, 0])
+        solar = [[15 * i, 0] for i in range(192)]
+
         for gen in generation_assets:
             declination = gen.declination
             azimuth = gen.azimuth
@@ -51,11 +50,11 @@ def optimization(email):
         weight1 = 1
         weight2 = 1
         weight3 = 1
-        solar_forecast = [round(item[1] / 1000, 2) for item in solar]
+        solar_forecast = [round(item[1], 4) for item in solar]
         tmp_user.pred_solar_generation = json.dumps(solar_forecast)
         print("Solar Forecast Done.")
 
-        base_forecast = [round(item[1] / 1000, 2) for item in base_load]
+        base_forecast = [round(item[1] / 1000, 4) for item in base_load]
         tmp_user.pred_baseload = json.dumps(base_forecast)
         cur_battery = battery_size
         print("Battery Forecast Done.")
@@ -69,12 +68,20 @@ def optimization(email):
         print("Optimal Threshold Done.")
 
         #get user flexible loads (should pull from db and get required energy cost and duration of load)
-        TeslaEV = FlexibleLoad("Tesla EV",10000, 10) #example
-        SomethingElse = FlexibleLoad("Something Else",50000,23)
-        flexible_loads = [TeslaEV, SomethingElse] #array of all user flexible loads
+        flexible_assets = user_asset.objects.filter(user=tmp_user, type_of_asset='flexible')
+        flexible_loads = []
+        
+        demand = 0
+        duration = 1
+        for f in flexible_assets:
+            demand += int(f.demand)
+            duration = max(duration, int(f.duration)) #assume we do everything at the same time
+            flexible_loads.append(FlexibleLoad(f.asset_name, int(f.demand), max(1, int(f.duration)//900)))
 
+        flexible_aggregate = FlexibleLoad('Flexible Aggregate', demand * 1000, max(1,duration//900))
+        
         #output good times for user visualization
-        good_times, costCharge = find_good_times(user_model, best_threshold, TeslaEV)
+        good_times, costCharge = find_good_times(user_model, best_threshold, flexible_aggregate)
         tmp_user.pred_good_time = json.dumps(good_times)
         print("Good Times Done.")
 
@@ -117,7 +124,7 @@ def optimization(email):
         print("Notifications sent.")
 
     except Exception as e:
-        print(e)
+        print('The error is', e)
         return "failed"
 
 
