@@ -4,25 +4,14 @@ import json
 
 from calendar import timegm
 
-ASSET_ID = 14
+ASSET_ID = 1
 FILE_NAME = "subset.csv"
 
 file = open(FILE_NAME, "r").read()
 lyst = list()
 
 for line in file.split("\n")[1:]:
-<<<<<<< HEAD
     t, consumed_energy, produced_energy = line.strip("\r").split(",")
-=======
-        t, consumed_energy, produced_energy = line.strip("\r").split(",")
-        
-        lyst.append({
-                "start_time" : t,
-                "interval": 15,
-                "consumed_energy": float(consumed_energy),
-                "produced_energy": 0.0
-        })
->>>>>>> ee1aa3a228764bd0b89ed677691023e4494e0f8c
 
     lyst.append({
         "start_time": t,

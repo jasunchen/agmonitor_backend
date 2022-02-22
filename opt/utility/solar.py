@@ -5,7 +5,6 @@ import environ
 env = environ.Env()
 
 
-
 def convertTime(s):
     return int((datetime.strptime(s, '%Y-%m-%d %H:%M:%S') - datetime(1970, 1, 1)).total_seconds())
 
@@ -14,14 +13,9 @@ def getSolarData(latitude: float, longitude: float, declination: float, azimuth:
     solar_api_key = env('SOLARAPIKEY')
     #solar_api_key = 'insert here'
     response = requests.get(
-<<<<<<< HEAD
         headers={'content-type': 'application/json'},
-        url='https://api.forecast.solar/estimate/{}/{}/{}/{}/{}'.format(
-            latitude, longitude, declination, azimuth, power),
-=======
-        headers={'content-type' : 'application/json'},
-        url='https://api.forecast.solar/{}/estimate/{}/{}/{}/{}/{}'.format(solar_api_key, latitude, longitude, declination, azimuth, power), 
->>>>>>> e2f0945ca71662d27fb83eecbd06d6410daf7e14
+        url='https://api.forecast.solar/{}/estimate/{}/{}/{}/{}/{}'.format(
+            solar_api_key, latitude, longitude, declination, azimuth, power),
         verify=False
     )
     response = response.json()
@@ -47,11 +41,7 @@ def getSolarData(latitude: float, longitude: float, declination: float, azimuth:
             # assume energy generated equally through time period (this is not great, but workable)
             for i in range(previousIndex, index):
                 result[i][1] += energyGenerated / (index - previousIndex)
-<<<<<<< HEAD
 
-=======
-            
->>>>>>> ee1aa3a228764bd0b89ed677691023e4494e0f8c
             previousValue = v
             previousIndex = index
 
