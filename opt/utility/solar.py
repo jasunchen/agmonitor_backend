@@ -11,7 +11,7 @@ def convertTime(s):
 
 def getSolarData(latitude: float, longitude: float, declination: float, azimuth: float, power: float):
     solar_api_key = env('SOLARAPIKEY')
-    #solar_api_key = 'insert here'
+    #solar_api_key = ''
     response = requests.get(
         headers={'content-type': 'application/json'},
         url='https://api.forecast.solar/{}/estimate/{}/{}/{}/{}/{}'.format(
@@ -19,28 +19,30 @@ def getSolarData(latitude: float, longitude: float, declination: float, azimuth:
         verify=False
     )
     response = response.json()
-    print(response)
 
     if response['message']['code'] == 0:
-        result = [[15 * t, 0] for t in range(192)]
+        result = [[15 * t, 0] for t in range(672)]
         data = [[convertTime(k), v / 1000] for k, v in response['result']['watt_hours'].items()]
 
-        # offset for odd / even days
-        offset = 86400 if data[0][0] % 172800 >= 86400 else 0
+        # offset for days
+        offset = 86400 * (data[0][0] % 604800 // 86400)
         previousIndex = 0
         previousValue = 0
 
         for t, v in data:
             # calculate index of result array
-            index = int((t + offset) % 172800 / 60 // 15)
+            index = int((t - offset) % 604800 / 60 // 15)
 
             # calculate energy generated
             energyGenerated = max(0, v - previousValue)
 
             # calculate energy generated between index and previousIndex
             # assume energy generated equally through time period (this is not great, but workable)
-            for i in range(previousIndex, index):
-                result[i][1] += energyGenerated / (index - previousIndex)
+            if previousIndex == index:
+                result[index][1] += energyGenerated
+            elif previousIndex < index:
+                for i in range(previousIndex, index):
+                    result[i][1] += energyGenerated / (index - previousIndex)
 
             previousValue = v
             previousIndex = index
@@ -51,8 +53,8 @@ def getSolarData(latitude: float, longitude: float, declination: float, azimuth:
 
 
 if __name__ == "__main__":
-    latitude = 34.413963
-    longitude = -119.848946
+    latitude = 34.463829
+    longitude = -119.740647
     declination = 0.0
     azimuth = 180.0
     power = 3000.0

@@ -1,9 +1,9 @@
 import requests
 import json
-import environ
+# import environ
 import numpy as np
 
-env = environ.Env()
+# env = environ.Env()
 url = "https://api.enphaseenergy.com/api/v2/systems/2140366/stats?start_at={}&end_at={}&key=f2af1b02da727c9f4f06bf4a80e2f3ba&user_id=4d6a49784f446b784d413d3d0a"
 headers = {'content-type' : 'application/json'}
 
@@ -34,8 +34,13 @@ def apply_fit(m,b, predicted):
 
 if __name__ == "__main__":
     start_time = 1644393600
+    results = []
+    for i in range(7):
+        gen = get_data(start_time + i*86400)
+        results.append(gen)
+    print(results)
     actual_generated = get_data(start_time)
-    print(actual_generated)
+    #print(actual_generated)
     print(len(actual_generated))
     #print(linear_fit(actual_generated, [0]*96))
     print(linear_fit([0,1], [0,1]))

@@ -23,15 +23,14 @@ def calculate_base_load(tmp_user, start_time, end_time):
                 minutes = d['start_time'] % 86400 // 60
                 time_map[minutes]["sum"] += d['consumed_energy']
                 time_map[minutes]["count"] += 1
-
     except: 
-        print("ERROR")
+        print("ERROR IN BASE LOAD")
 
     # Compute Running Average
     # 2D list with elements containing [
     # first element: time in minutes (i.e., 1425 = 23:45) use x // 60 for hrs, x % 60 for mins
     # second element: average base load in WH
-    #]
+    # ]
     return [[k, (v["sum"] / v["count"])*1000 if v["count"] != 0 else 0] for k, v in time_map.items()]
     
 

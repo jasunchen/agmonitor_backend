@@ -1,11 +1,14 @@
 import requests
 import json
+import environ
 
+env = environ.Env()
 relevantAlerts = ["Avalanche", "Snow", "Rain", "Wind", "Blizzard", "Flood", "Hurricane", "Thunderstorm", "Storm", "Tornado", "Gale"] #just storm alerts
  
   
 def get_alerts(latitude: float, longitude: float):      
-        response = requests.get('https://api.weatherbit.io/v2.0/alerts?key=e4ab5eb2ee6b4d2db1bd229c8800daf6&lat=' + str(latitude) +'&lon=' + str(longitude))
+        weather_api_key = env('WEATHERAPIKEY')
+        response = requests.get('https://api.weatherbit.io/v2.0/alerts?key={}&lat={}&lon={}'.format(weather_api_key, str(latitude), str(longitude)))
         alerts = json.loads(response.text)['alerts']
         parsedAlerts = []
         for a in alerts:
