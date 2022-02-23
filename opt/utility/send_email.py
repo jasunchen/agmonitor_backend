@@ -1,17 +1,20 @@
 import smtplib, ssl
 from email.message import EmailMessage
+import environ
+
+env = environ.Env()
 
 def send_email(receiver, message):
-    sender = "yuyuanwang1999@gmail.com"
-    password = "ytpuqhpomlekpeqh"
+    sender = "ucsbsmartgrid@gmail.com"
+    password = env('SMTPAPIKEY')
     port = 465  # For SSL
     smtp_server = "smtp.gmail.com"
     context = ssl.create_default_context()
     msg = EmailMessage()
     msg.set_content(message)
 
-    msg['Subject'] = '[ACTION REQUIRED] Your Changes for Energy Grid Optimization'
-    msg['From'] = "Agmonitor Optimization AutoNotification"
+    msg['Subject'] = 'Your Changes for SmartGrid Optimization'
+    msg['From'] = "SmartGrid Optimization AutoNotification"
     msg['To'] = receiver
 
     # Send the message via our own SMTP server.

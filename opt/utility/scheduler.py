@@ -5,8 +5,8 @@ from opt.utility.send_message import send_message
 from opt.utility.schedulerHelper import *
 import json
 
-ShouldNotChargeMessage = "Based on weather forecasts and historical data for tomorrow, the ideal reserve percentage for your battery is {} percent, and you should avoid using your flexible loads. However, the best times for you to use energy tomorrow is from {}. Please visit https://agmonitor-pina-colada.herokuapp.com/ for more details."
-ShouldChargeMessage = "Based on weather forecasts and historical data for tomorrow, the ideal reserve percentage for your battery is {} percent, and you should use your flexible loads. The best times for you to use energy tomorrow is from {}. Please visit https://agmonitor-pina-colada.herokuapp.com/ for more details."
+ShouldNotChargeMessage = "Based on weather forecasts and historical data for tomorrow, the ideal reserve percentage for your battery is {} percent, and you should avoid using your flexible loads. However, the best times for you to start using energy tomorrow is from {}. Please visit https://agmonitor-pina-colada.herokuapp.com/ for more details."
+ShouldChargeMessage = "Based on weather forecasts and historical data for tomorrow, the ideal reserve percentage for your battery is {} percent, and you should use your flexible loads. The best times for you to start using energy tomorrow is from {}. Please visit https://agmonitor-pina-colada.herokuapp.com/ for more details."
 
 def optimization(email):
     from ucsb.models import user,user_asset
