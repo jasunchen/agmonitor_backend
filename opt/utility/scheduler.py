@@ -100,7 +100,7 @@ def optimization(email):
 
 
         #construct good times message
-        goodTimesRange = convertRangeToTimes(findRange(good_times))
+        goodTimesRange = convertRangeToTimes(findRange(good_times + [0]))
         if (shouldCharge):
             userMsg = ShouldChargeMessage.format(best_threshold, goodTimesRange)
         else:
