@@ -14,4 +14,4 @@ for line in file.split("\n")[:-1]:
     produced.append(float(t[2]))
 
 
-print(produced)    
+print(consumed)    

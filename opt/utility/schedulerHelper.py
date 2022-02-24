@@ -48,5 +48,8 @@ def convertRangeToTimes(arr):
 	return output[:-2]
 
 if __name__ == "__main__":
-    arr = [0,0,0,0,0,0,0,1]
-    print(convertRangeToTimes(findRange(arr)))
+	# arr = [1,1,0,1,0,1,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,1,1,1]
+	arr = [0]*96 + [0]
+	arr[95] = 1
+	print(findRange(arr))
+	print(convertRangeToTimes(findRange(arr)))
