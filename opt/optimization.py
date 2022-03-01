@@ -57,10 +57,11 @@ def computePredictedBatteryChargeAndTotalCost(currentCharge, energyFlow, thresho
     maxCharge = 0.37 * maxStorage #5 kW rate #825 #watt hours per 15 min increment or ~3.3 kWh
     maxDischarge = -0.37 * maxStorage #5 kW #1925 #watt hours per 15 min increment or ~7.7 kWh
 
-    excessSolar = [0]*192 #if solar generation is too high
-    excessBattery = [0]*192 #if battery storage is capped out
-    utility = [0]*192
-    battery = [0]*192
+    length = len(energyFlow) #should be 192 for 2 days
+    excessSolar = [0]*length #if solar generation is too high 
+    excessBattery = [0]*length #if battery storage is capped out
+    utility = [0]*length
+    battery = [0]*length
 
     #keep track of maximum costs to minmax normalize values 
     maxCostGrid = 0.01
@@ -70,31 +71,36 @@ def computePredictedBatteryChargeAndTotalCost(currentCharge, energyFlow, thresho
     minimumWattHours = 0.2*maxStorage
 
     for index, e in enumerate(energyFlow):
-        print("energyupdate", index, ": ", e,", currentCharge: ", currentCharge, ", costs:", costGrid, maxCostGrid, costGrid/maxCostGrid)
+        currentMaxCharge = min(maxCharge, maxStorage - currentCharge)
+        currentMaxDischarge = max(maxDischarge, thresholdWattHours - currentCharge)
+        #print("energyupdate", index, ": ", e,", currentCharge: ", currentCharge, ", costs:", costGrid, maxCostGrid, costGrid/maxCostGrid)
         if (e > 0): #producing excess solar energy
-            currentCharge += min(e, maxCharge)
-            excessSolar[index] += max(0, e-maxCharge)
+            currentCharge += min(e, currentMaxCharge)
+            excess = max(0, e-currentMaxCharge)
+            excessSolar[index] += excess
             maxCostRenewableIntegration += e
-            utility[index] += max(0, e-maxCharge)
-            #print("pos:",e-maxCharge)
-        else:
-            currentCharge += max(e, maxDischarge) #max to take less negative number
-            maxCostGrid += max(e, maxDischarge)*price
-            utility[index] += min(0, e-maxDischarge) #-1000 - -1925 --> 925 --> 0, -2000 --1925 --> -75
-
-        diff = currentCharge - thresholdWattHours if (index < 96) else currentCharge - minimumWattHours
-
-        if (diff < 0):
-            costGrid += diff*price
-            currentCharge -= diff #todo maxcharge
-        
-        if (currentCharge > maxStorage): #wasted solar
-            excess = currentCharge - maxStorage 
+            utility[index] += excess
             costRenewableIntegration += excess
-            excessBattery[index] += currentCharge
-            currentCharge -= excess
-        utility[index] = round((utility[index]/1000),4)
-        battery[index] = round(currentCharge/1000,4)
+        else:
+            deficit = min(0, e-currentMaxDischarge) #-1000 - -1925 --> 925 --> 0, -2000 --1925 --> -75
+            currentCharge += max(e, currentMaxDischarge) #max to take less negative number
+            maxCostGrid += e*price
+            utility[index] += deficit
+            costGrid += deficit
+
+        # diff = currentCharge - thresholdWattHours if (index < 96) else currentCharge - minimumWattHours
+
+        # if (diff < 0):
+        #     costGrid += diff*price
+        #     currentCharge -= diff #todo maxcharge
+        
+        # if (currentCharge > maxStorage): #wasted solar
+        #     excess = currentCharge - maxStorage 
+        #     costRenewableIntegration += excess
+        #     excessBattery[index] += currentCharge
+        #     currentCharge -= excess
+        utility[index] = round((utility[index]/1000),8)
+        battery[index] = round(currentCharge/1000,8)
         
 
     # cost to grid
@@ -116,7 +122,7 @@ def thresholdCost(userProfile: UserProfile, threshold):
     costShutOff = computeShutOffCost(userProfile.shutOffRisk, userProfile.idealReserveThreshold, threshold)
 
     cost = userProfile.weight1*costGrid  + userProfile.weight2 * costRenewableIntegration + userProfile.weight3* costShutOff
-
+    # print("cost: {}, {},{}".format(costGrid, costRenewableIntegration,costShutOff ))
     return (cost, excessSolar, excessBattery, utility, battery)
 
 def find_optimal_threshold(userProfile: UserProfile):
@@ -130,7 +136,7 @@ def find_optimal_threshold(userProfile: UserProfile):
     utility, battery = [0]*96, [0]*96
 
     for i in range(1000):
-        candidate = curr + np.random.randn() * step_size
+        candidate = round(curr + np.random.randn() * step_size)
         candidate = max(userProfile.lowerLimit, candidate)
         candidate = min(userProfile.maximumLimit, candidate)
         candidate_eval, excessSolar, excessBattery, utility, battery = thresholdCost(userProfile, candidate)
@@ -269,7 +275,7 @@ def find_optimal_fl_schedule(userProfile: UserProfile, threshold, flexibleLoads:
 
 def should_charge(userProfile: UserProfile, threshold, costOfSchedule):
     cost = flexibleLoadScheduleCost(userProfile, threshold, [], [[]])[0]
-    print(cost)
+    print("Cost of charge: {}, Cost of not charging: {}. ".format(costOfSchedule, cost))
     return cost > costOfSchedule
 
 if __name__ == "__main__":

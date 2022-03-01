@@ -1,5 +1,5 @@
 
-FILE_NAME = "data/filter.csv"
+FILE_NAME = "data/meterdata214.csv"
 
 file = open(FILE_NAME, "r").read()
 lyst = list()
@@ -14,4 +14,4 @@ for line in file.split("\n")[:-1]:
     produced.append(float(t[2]))
 
 
-print(consumed)    
+print(produced)    
