@@ -5,8 +5,10 @@ from opt.utility.send_message import send_message
 from opt.utility.schedulerHelper import *
 import json
 
-ShouldNotChargeMessage = "Based on weather forecasts and historical data for tomorrow, the ideal reserve percentage for your battery is {} percent, and you should avoid using your flexible loads. However, the best times for you to start using energy tomorrow is from {}. Please visit https://smartgrid-frontend.vercel.app/ for more details."
-ShouldChargeMessage = "Based on weather forecasts and historical data for tomorrow, the ideal reserve percentage for your battery is {} percent, and you should use your flexible loads. The best times for you to start using energy tomorrow is from {}. Please visit https://smartgrid-frontend.vercel.app/ for more details."
+ShouldNotChargeMessage_email = "Based on weather forecasts and historical data for tomorrow, the ideal reserve percentage for your battery is <b>{}</b> percent, and you should avoid using your flexible loads. However, the best times for you to start using energy tomorrow is from <b>{}</b>. Please visit https://smartgrid-frontend.vercel.app/ for more details."
+ShouldNotChargeMessage_text = "Based on weather forecasts and historical data for tomorrow, the ideal reserve percentage for your battery is {} percent, and you should avoid using your flexible loads. However, the best times for you to start using energy tomorrow is from {}. Please visit https://smartgrid-frontend.vercel.app/ for more details."
+ShouldChargeMessage_email = "Based on weather forecasts and historical data for tomorrow, the ideal reserve percentage for your battery is <b>{}</b> percent, and you should use your flexible loads. The best times for you to start using energy tomorrow is from <b>{}</b>. Please visit https://smartgrid-frontend.vercel.app/ for more details."
+ShouldChargeMessage_text = "Based on weather forecasts and historical data for tomorrow, the ideal reserve percentage for your battery is {} percent, and you should use your flexible loads. The best times for you to start using energy tomorrow is from {}. Please visit https://smartgrid-frontend.vercel.app/ for more details."
 
 def optimization(email):
     from ucsb.models import user,user_asset
@@ -102,9 +104,11 @@ def optimization(email):
         #construct good times message
         goodTimesRange = convertRangeToTimes(findRange(good_times + [0]))
         if (shouldCharge):
-            userMsg = ShouldChargeMessage.format(best_threshold, goodTimesRange)
+            userMsg = ShouldChargeMessage_text.format(best_threshold, goodTimesRange)
+            userMsg_email = ShouldChargeMessage_email.format(best_threshold, goodTimesRange)
         else:
-            userMsg = ShouldNotChargeMessage.format(best_threshold, goodTimesRange)
+            userMsg = ShouldNotChargeMessage_text.format(best_threshold, goodTimesRange)
+            userMsg_email = ShouldNotChargeMessage_email.format(best_threshold, goodTimesRange)
 
         # save weather alerts and good times
         text_dict = {
@@ -118,7 +122,7 @@ def optimization(email):
         print("Data Saved.")
 
         #todo notification settings
-        send_email(tmp_user.user_email, userMsg)
+        send_email(tmp_user.user_email, userMsg_email)
         send_message(userMsg, tmp_user.phone_number)
 
         print("Notifications sent.")
