@@ -1,7 +1,7 @@
 # SmartGrid - Backend
-Computer Science Capstone
-UC Santa Barbara 
-AgMonitor
+Computer Science Capstone \
+UC Santa Barbara \
+AgMonitor \
 
 ## Summary
 ### Motivation
@@ -35,10 +35,10 @@ None.
 See requirements.txt for a full list of libraries.
 
 ### Deployment
-docker-compose -f local.yml build
-docker-compose -f local.yml up
-docker-compose -p project -f local.yml up -d --build
-docker-compose -f local.yml run --rm django pytest
+docker-compose -f local.yml build \
+docker-compose -f local.yml up \
+docker-compose -p project -f local.yml up -d --build \
+docker-compose -f local.yml run --rm django pytest \
 
 
 ## Specs
