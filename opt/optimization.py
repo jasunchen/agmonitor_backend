@@ -70,7 +70,7 @@ def computePredictedBatteryChargeAndTotalCost(currentCharge, energyFlow, thresho
     minimumWattHours = 0.2*maxStorage
 
     for index, e in enumerate(energyFlow):
-        print("energyupdate", index, ": ", e,", currentCharge: ", currentCharge, ", costs:", costGrid, maxCostGrid, costGrid/maxCostGrid)
+        # print("energyupdate", index, ": ", e,", currentCharge: ", currentCharge, ", costs:", costGrid, maxCostGrid, costGrid/maxCostGrid)
         if (e > 0): #producing excess solar energy
             currentCharge += min(e, maxCharge)
             excessSolar[index] += max(0, e-maxCharge)
@@ -137,7 +137,7 @@ def find_optimal_threshold(userProfile: UserProfile):
 
         if candidate_eval < best_eval:
             best, best_eval, best_solar, best_battery = candidate, candidate_eval, excessSolar, excessBattery
-            print('>%d cost(%s) = %.5f' % (i, best, best_eval))
+            # print('>%d cost(%s) = %.5f' % (i, best, best_eval))
         diff = candidate_eval - curr_eval
         t = temp / float(i + 1)
         metropolis = np.exp(-diff / t)
@@ -246,7 +246,7 @@ def find_optimal_fl_schedule(userProfile: UserProfile, threshold, flexibleLoads:
     best_solar, best_battery = [],[]
 
     for epoch in range(10):
-        print("Epoch", epoch)
+        # print("Epoch", epoch)
         for i in range(1000):
             candidate = create_candidate_schedule(curr, step_size, epoch)
             candidate_eval, excessSolar, excessBattery = flexibleLoadScheduleCost(userProfile, threshold, flexibleLoads, candidate)
@@ -269,7 +269,7 @@ def find_optimal_fl_schedule(userProfile: UserProfile, threshold, flexibleLoads:
 
 def should_charge(userProfile: UserProfile, threshold, costOfSchedule):
     cost = flexibleLoadScheduleCost(userProfile, threshold, [], [[]])[0]
-    print(cost)
+    # print(cost)
     return cost > costOfSchedule
 
 if __name__ == "__main__":
@@ -307,7 +307,7 @@ if __name__ == "__main__":
 
     #output good times for user visualization
     good_times, costCharge = find_good_times(user_model, best_threshold, TeslaEV)
-    print(costCharge)
+    # print(costCharge)
 
     #output ideal schedule
     #best_schedule, best_schedule_score, best_solarFL, best_batteryFL = find_optimal_fl_schedule(user_model, best_threshold, flexible_loads) #should return 2d array [ [1 (should charge), 20 (timeOfDay)], [0 (should not charge), 0 (irrelevant)]]
