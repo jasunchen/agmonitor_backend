@@ -71,52 +71,102 @@ TODO
 Apache 2.0
 
 ### APIs
+Get all users' information(testing purpose):
 
-add a new user:<br />
 ```
-/editUser
+GET /getAllUsers
 ```
-![image](https://user-images.githubusercontent.com/72473351/146705763-9a13d613-c915-4350-87dd-1a6bc2e62733.png)
 
-add a new asset:<br />
-```
-/addUserAsset
-```
-![image](https://user-images.githubusercontent.com/72473351/146705912-9d0e36b7-8b68-40db-b97f-5560cef8381f.png)
+Add a new user:<br />
 
-get all assets for a user:<br />
 ```
-/getUserAsset
+POST /registerUser
 ```
-![image](https://user-images.githubusercontent.com/72473351/146705973-32fe5f23-3f99-42c2-8507-28bc51fb4c86.png)
+BODY:
 
-delete a new asset:<br />
-```
-/deleteUserAsset
-```
-![image](https://user-images.githubusercontent.com/72473351/146706105-aca87817-cfcc-4a74-82b2-abc65da5a617.png)
+<img width="533" alt="image" src="https://user-images.githubusercontent.com/72473351/157151169-b745e6f1-e839-41d1-8431-82b7016fdf2d.png">
 
-update a new asset:<br />
-```
-/updateUserAsset
-```
-![image](https://user-images.githubusercontent.com/72473351/146706591-040dd90c-5b8f-4e36-801e-aacefaaa78fb.png)
 
-add new asset dataset:<br />
-```
-\createAssetData
-```
-![image](https://user-images.githubusercontent.com/72473351/146706426-ed4306ad-dd3b-47a3-923b-f790eafa753d.png)
+Get the user information:<br />
 
-delete dataset for an asset: <br />
 ```
-\deleteAssetData
+GET /getUser?email={}
 ```
-![image](https://user-images.githubusercontent.com/72473351/146706445-22ae8f3f-f5c0-42d0-b039-7261a3d75dc9.png)
+Update the user information:<br />
 
-get dataset for an asset: <br />
 ```
-/getAssetData
+POST /updateUser
 ```
-![image](https://user-images.githubusercontent.com/72473351/146706490-cda27dc5-fcfe-4504-aee5-488203ae23aa.png)
+BODY:
+
+<img width="529" alt="image" src="https://user-images.githubusercontent.com/72473351/157151253-41265a67-6382-4a2e-8ad7-54f1bf37cdc7.png">
+
+Add a new asset:<br />
+
+```
+POST /addUserAsset
+```
+BODY:
+
+<img width="765" alt="image" src="https://user-images.githubusercontent.com/72473351/157151331-d4019aac-b5af-413d-a63b-55e9ceddae8c.png">
+
+
+Get all assets for a user:<br />
+
+```
+GET /getAllAssets?email={}
+```
+
+Delete an asset:<br />
+
+```
+DELETE /deleteUserAsset
+```
+BODY
+
+<img width="516" alt="image" src="https://user-images.githubusercontent.com/72473351/157151440-76cf4bd9-09bf-4aa2-8800-e81c09818cc8.png">
+
+Update a new asset:<br />
+
+```
+POST /updateUserAsset
+```
+BODY
+
+<img width="765" alt="image" src="https://user-images.githubusercontent.com/72473351/157151331-d4019aac-b5af-413d-a63b-55e9ceddae8c.png">
+
+
+Add new asset dataset:<br />
+
+```
+POST \createAssetData
+```
+BODY
+
+<img width="391" alt="image" src="https://user-images.githubusercontent.com/72473351/157151574-f19b632a-5505-49e8-9164-f0d4927f73d2.png">
+
+
+Delete dataset for an asset: <br />
+
+```
+DELETE \deleteAssetData
+```
+BODY
+
+<img width="536" alt="image" src="https://user-images.githubusercontent.com/72473351/157151603-f57f9acb-e9fc-4ffe-96d3-504ca407e8d2.png">
+
+Get dataset for an asset: <br />
+
+```
+GET /getAssetData?id={}&start={}&end={}&page={}
+```
+
+Run optimization function(testing purpose): <br />
+
+```
+POST /optimization
+```
+
+BODY
+<img width="530" alt="image" src="https://user-images.githubusercontent.com/72473351/157151728-7092f221-b499-46f8-9c48-b6300e8a1fb4.png">
 
