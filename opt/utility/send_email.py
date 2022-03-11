@@ -11,20 +11,29 @@ def send_email(receiver, message):
     smtp_server = "smtp.gmail.com"
     context = ssl.create_default_context()
     msg = EmailMessage()
-    msg.set_content(message)
+    msg.add_alternative("""\
+    <html>
+    <head></head>
+    <body>
+        <p style="font-size:22px" >{}
+        </p>
+        <br/>
+        <p style="font-size:22px">SmartGrid Team</p>
+        <p style="font-size:22px">ucsbsmartgrid@gmail.com</p>
+
+    </body>
+    </html>
+    """.format(message), subtype='html')
+
 
     msg['Subject'] = 'Your Changes for SmartGrid Optimization'
     msg['From'] = "SmartGrid Optimization AutoNotification"
     msg['To'] = receiver
 
     # Send the message via our own SMTP server.
-    with smtplib.SMTP_SSL(smtp_server, port, context=context) as server:
-        server.login(sender, password)
-        server.send_message(msg)
+    s = smtplib.SMTP('smtp.gmail.com', 587)
+    s.starttls()
+    s.login(sender, password)
+    s.send_message(msg)
+    s.quit()
 
-
-if __name__ == "__main__":
-    
-    receiver = "kaiwen_li@ucsb.edu"
-    message = "Hello, this is a test email"
-    send_email(receiver, message)

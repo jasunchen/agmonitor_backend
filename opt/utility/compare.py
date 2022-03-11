@@ -1,15 +1,18 @@
 import requests
 import json
-# import environ
+import environ
 import numpy as np
 
-# env = environ.Env()
-url = "https://api.enphaseenergy.com/api/v2/systems/2140366/stats?start_at={}&end_at={}&key=f2af1b02da727c9f4f06bf4a80e2f3ba&user_id=4d6a49784f446b784d413d3d0a"
+env = environ.Env()
+
+apikey = env('ENPHASEKEY')
+userid = env('ENPHASEUSERID')
+url = "https://api.enphaseenergy.com/api/v2/systems/2140366/stats?start_at={}&end_at={}&key={}&user_id={}"
 headers = {'content-type' : 'application/json'}
 
 def get_data(start_time):
     end_time = start_time + 86400
-    response = requests.get(url.format(start_time, end_time), headers=headers)
+    response = requests.get(url.format(start_time, end_time, apikey, userid), headers=headers)
     response = response.json()
 
     arr = [0]*96
