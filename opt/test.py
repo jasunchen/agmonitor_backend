@@ -98,7 +98,7 @@ if __name__ == "__main__":
 
     #settings 
     weight1 = 1 #importance of cost 
-    weight2 = 0 #importance of renewable integ
+    weight2 = 0.5 #importance of renewable integ
     weight3 = 0.5 #importance of shutoff
     lowerLimit = 20
     maximumLimit = 100
@@ -149,7 +149,7 @@ if __name__ == "__main__":
         temp_battery = [round(item / (batterySize/1000), 2)*100 for item in temp_battery] #convert to battery percentage
         temp_battery = temp_battery[:96]
         pred_battery_tesla = pred_battery_tesla + temp_battery
-    print("Original grid usage: {}%, solar to grid: {}%".format(gridUsage / sum(entire_home), solarToGrid/(sum(entire_solar))))
+    print("Original grid usage: {}%, solar to grid: {}%".format(gridUsage*100/ sum(entire_home), solarToGrid*100/(sum(entire_solar))))
 
     val1, val2, u_, endingBatt = checkTime(originalBatteryState, batterySize, filtered_base[:672], entire_solar, True, filtered_flex_nozeroes, 0, 88)
 
@@ -194,7 +194,7 @@ if __name__ == "__main__":
         # print(u_)
         avgImprovedGridUsage += val1
         avgImprovedRenewableIntegration += val2
-        print("Estimated performance if charging today at {}: {}%, solar to grid: {}%, with ending battery {}".format(convertIndexToTime(findRange(good_times + [0])[0][0]), val1, val2, round(endingBatt / (batterySize/1000), 2)*100 ))
+        print("Estimated performance if charging today at {}: grid usage {}%, solar to grid: {}%, with ending battery {}".format(convertIndexToTime(findRange(good_times + [0])[0][0]), val1*100, val2*100, round(endingBatt / (batterySize/1000), 2)*100 ))
 
         print("--------------------------------------------------------------------------")
 

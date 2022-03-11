@@ -88,17 +88,6 @@ def computePredictedBatteryChargeAndTotalCost(currentCharge, energyFlow, thresho
             utility[index] += deficit
             costGrid += deficit
 
-        # diff = currentCharge - thresholdWattHours if (index < 96) else currentCharge - minimumWattHours
-
-        # if (diff < 0):
-        #     costGrid += diff*price
-        #     currentCharge -= diff #todo maxcharge
-        
-        # if (currentCharge > maxStorage): #wasted solar
-        #     excess = currentCharge - maxStorage 
-        #     costRenewableIntegration += excess
-        #     excessBattery[index] += currentCharge
-        #     currentCharge -= excess
         utility[index] = round((utility[index]/1000),8)
         battery[index] = round(currentCharge/1000,8)
         
@@ -268,10 +257,6 @@ def find_optimal_fl_schedule(userProfile: UserProfile, threshold, flexibleLoads:
 
     return best, best_eval, best_solar, best_battery
 
-# def should_charge(userProfile: UserProfile, threshold, flexibleLoads: List[FlexibleLoad], schedule: List[List[int]], optimum: float):
-#     #is performance better than not charging? 
-#     cost = flexibleLoadScheduleCost(userProfile, threshold, flexibleLoads, schedule)[0]
-#     return (cost-optimum <= 0.2)
 
 def should_charge(userProfile: UserProfile, threshold, costOfSchedule):
     cost = flexibleLoadScheduleCost(userProfile, threshold, [], [[]])[0]

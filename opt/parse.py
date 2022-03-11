@@ -13,7 +13,7 @@ def parse(fileName):
 
     for i in range (1, len(csvreader)):
         if (i-1)%3 == 0:
-            time = int((datetime.strptime(csvreader[i][0], '%Y-%m-%dT%H:%M:%S-08:00') - datetime(1970,1,1)).total_seconds())
+            time = int((datetime.strptime(csvreader[i][0], '%Y-%m-%dT%H:%M:%S-07:00') - datetime(1970,1,1)).total_seconds())
             response.append([time, convert5minKWintoWattHours(float(csvreader[i][1])), convert5minKWintoWattHours(float(csvreader[i][2])), convert5minKWintoWattHours(float(csvreader[i][3])), convert5minKWintoWattHours(float(csvreader[i][4])), int(csvreader[i][5])])
         else:
             index = int((i-1)/3)
