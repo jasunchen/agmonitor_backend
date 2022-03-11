@@ -36,14 +36,14 @@ def apply_fit(m,b, predicted):
     return [(i - b)/m for i in predicted]
 
 if __name__ == "__main__":
-    start_time = 1625212800 #call here first
+    start_time = 1644220800 #call here first
     results = []
-    for i in range(7):
+    for i in range(8):
         gen = get_data(start_time + i*86400)
         results = results + (gen)
     print(results)
-    #actual_generated = get_data(start_time)
-    #print(actual_generated)
+    # actual_generated = get_data(start_time)
+    # print(actual_generated)
     #print(len(actual_generated))
     #print(linear_fit(actual_generated, [0]*96))
     #print(linear_fit([0,1], [0,1]))
