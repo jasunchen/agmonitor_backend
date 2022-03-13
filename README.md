@@ -29,10 +29,13 @@ Our system is comprised of the following technologies:
 - Weatherbit.io
 
 ### Prerequisites
-None.
+Acquire .env file containing appropriate keys to access API.
 
 ### Installation
-See requirements.txt for a full list of libraries.
+- See requirements.txt for a full list of libraries.
+- Use python upload.py with the relevant csv file and asset id to upload the correct data for frontend use.
+- Some manual data processing was done here: https://colab.research.google.com/drive/11iheqaw8sFQLVZtr4D8ZKJ9UnxrCMoLv?usp=sharing#scrollTo=lCA_I48HJq4V. 
+
 
 ### Deployment
 - docker-compose -f local.yml build 
@@ -65,7 +68,7 @@ See requirements.txt for a full list of libraries.
 20. As a user, I can link my variable assets so its charging/discharging is automatically controlled.
 
 ### Known Issues
-TODO
+- Data needs to be manually processed and uploaded at the moment.
 
 ### License
 Apache 2.0
