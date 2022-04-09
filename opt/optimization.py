@@ -17,10 +17,11 @@ class UserProfile:
     self.batterySize = batterySize
 
 class FlexibleLoad:
-  def __init__(self, id, energyCost, duration):
+  def __init__(self, id, energyCost, minDuration, maxDuration):
     self.id = id
-    self.energyCost = energyCost
-    self.duration = duration
+    self.energyCost = energyCost #avg cost per 15 minute interval 
+    self.minDuration = minDuration 
+    self.maxDuration = maxDuration 
 
 
 # alerts: an array severity rankings
@@ -68,7 +69,6 @@ def computePredictedBatteryChargeAndTotalCost(currentCharge, energyFlow, thresho
     maxCostRenewableIntegration = 0.01
 
     thresholdWattHours = 0.01 *threshold*maxStorage #convert threshold percentage into watt hours
-    minimumWattHours = 0.2*maxStorage
 
     for index, e in enumerate(energyFlow):
         currentMaxCharge = min(maxCharge, maxStorage - currentCharge)
@@ -145,14 +145,10 @@ def flexibleLoadEnergyFlow(energyFlow, flexibleLoads: List[FlexibleLoad], schedu
     maxTime = len(energyFlow) - 1
     for i in range(len(flexibleLoads)):
         loadCost = flexibleLoads[i].energyCost
-        duration = flexibleLoads[i].duration
-        isOn = schedule[i][1]
+        duration = schedule[i][1]
         beginTime = schedule[i][2]
-
-        if isOn == 1:
-            avgConsumption = loadCost/duration
-            for t in range(beginTime, min(beginTime+duration, maxTime)):
-                energyFlow[t] -= avgConsumption
+        for t in range(beginTime, min(beginTime+duration, maxTime)):
+                energyFlow[t] -= loadCost
     return energyFlow
 
 def flexibleLoadScheduleCost(userProfile: UserProfile, threshold, flexibleLoads: List[FlexibleLoad], schedule: List[List[int]]):
@@ -225,8 +221,65 @@ def create_candidate_schedule(schedule, step, epoch):
         schedule[i][2] = min(95, schedule[i][2])
     return schedule
 
+###
+###combined functions
+###
 
-def find_optimal_fl_schedule(userProfile: UserProfile, threshold, flexibleLoads: List[FlexibleLoad]):
+def flCost(userProfile: UserProfile, threshold, flexibleLoads: List[FlexibleLoad], schedule: List[List[int]]):
+    energyFlow = computeEnergyFlow(userProfile.solarForecast, userProfile.baseForecast)
+    energyFlow = flexibleLoadEnergyFlow(energyFlow, flexibleLoads, schedule)
+
+
+    costGrid, costRenewableIntegration, excessSolar, excessBattery, utility, battery= computePredictedBatteryChargeAndTotalCost(userProfile.currentBatteryState, energyFlow, threshold, userProfile.batterySize)
+    costShutOff = computeShutOffCost(userProfile.shutOffRisk, userProfile.idealReserveThreshold, threshold)
+
+    cost = userProfile.weight1*costGrid  + userProfile.weight2 * costRenewableIntegration + userProfile.weight3* costShutOff
+    # print("cost: {}, {},{}".format(costGrid, costRenewableIntegration,costShutOff ))
+    return (cost, excessSolar, excessBattery, utility, battery)
+
+
+def find_optimal_threshold_and_schedule(userProfile: UserProfile, flexibleLoad: FlexibleLoad):
+    utility, battery = [0]*96, [0]*96
+    differentThresholds = []
+    differentThresholdPerformance = []
+    for threshold in range(userProfile.lowerLimit, userProfile.maximumLimit+1): 
+        schedule = []
+        cost = []
+        utility = []
+        battery = []
+        for i in range(96):
+            for duration in range(flexibleLoad.minDuration, flexibleLoad.maxDuration+1):
+                tempSched = [flexibleLoad.id, duration, i]
+                candidate_cost, excessSolar, excessBattery, _util, _battery = flCost(userProfile, threshold, [flexibleLoad], [tempSched])
+                schedule.append(tempSched)
+                cost.append(candidate_cost)
+                utility.append(_util)
+                battery.append(_battery)
+        
+        differentThresholds.append((schedule, utility, battery))
+        differentThresholdPerformance.append(min(schedule))
+
+
+    best_performance = min(differentThresholdPerformance)
+    best_performance_index = differentThresholdPerformance.index(best_performance)
+    best_threshold = best_performance_index + userProfile.lowerLimit
+    return (best_threshold, best_performance, utility[best_performance_index], battery[best_performance_index])
+
+
+
+def find_optimal_fl_schedule(userProfile:  UserProfile, threshold, flexibleLoad: FlexibleLoad):
+    schedule = [0]*96
+    for i in range(96): 
+        candidate_eval, excessSolar, excessBattery = flexibleLoadScheduleCost(userProfile, threshold, [flexibleLoad], [[flexibleLoad.id, 1,i]])
+        schedule[i] = candidate_eval
+    minCost = min(schedule)
+    maxCost = max(schedule)
+    return ([round (1 - ((val - minCost) / max(maxCost - minCost, 0.01)), 2) for val in schedule], minCost)
+
+
+
+
+def find_optimal_fl_schedule_SA(userProfile: UserProfile, threshold, flexibleLoads: List[FlexibleLoad]):
     #for best possible schedule & score
     step_size = 10
     temp = 2
@@ -263,6 +316,8 @@ def should_charge(userProfile: UserProfile, threshold, costOfSchedule):
     # print("Cost of charge: {}, Cost of not charging: {}. ".format(costOfSchedule, cost))
     # print(cost)
     return cost > costOfSchedule
+
+
 
 if __name__ == "__main__":
 
