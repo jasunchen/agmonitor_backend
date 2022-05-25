@@ -73,12 +73,47 @@ def checkTime(batterystate, batterySize, baseLoad, solar, shouldCharge, flexible
 
     return  (gridUsage/entire_home_usage, solarToGrid/entire_solar_gen, baseLoad, temp_battery[-1])
 
+# schedule = [[day, timeOfDay], [day, timeOfDay], ... ]
+# len schedule = len flexibleLoad
+def checkMonth(batterystate, batterySize, baseLoad, solar, flexibleLoad, schedule):
+    fl_sum = 0
+    for i in flexibleLoad:
+        fl_sum += sum(i)
+    
+    entire_home_usage = sum(baseLoad) + fl_sum
+    entire_solar_gen = sum(solar)
 
+    if shouldCharge:
+        for ind, (day, timeOfDay) in enumerate(schedule):
+            for ind, ele in enumerate(flexibleLoad[ind]):
+                baseLoad[day*96 + timeOfDay + ind] += ele
+    
+    energyFlow = computeEnergyFlow(solar, baseLoad)
+    costGrid, costRenewableIntegration, excessSolar, excessBattery, utility, temp_battery= computePredictedBatteryChargeAndTotalCost(batterystate, energyFlow, 20, batterySize)
+    solarToGrid = sum([item*1000 for item in utility if item >= 0])
+    gridUsage = sum([item*-1000 for item in utility if item <= 0])
 
+    return  (gridUsage/entire_home_usage, solarToGrid/entire_solar_gen, baseLoad, temp_battery[-1])
 
+# array of filtered flexible loads --> array of arrays of individual flexible load
+def reconstructFilter(filteredFlex): 
+    returnArr = []
+    tempArr = []
+    for i in filteredFlex: 
+        if i == 0:
+            if tempArr: 
+                returnArr.append(tempArr)
+                tempArr = []
+        else:
+            tempArr.append(i)
+    return returnArr
+
+def randomlyPruneSchedule(arr, n):
+    to_delete = set(random.sample(range(len(arr)), n))
+    return [ele for ind, ele in enumerate(arr) if not ind in to_delete]
 
 if __name__ == "__main__":
-    fileNames = ["Tesladata9-23", "Tesla data 9-24", "Tesla data 9-25", "Tesla data 9-26", "Tesla data 9-27","Tesla data 9-28", "Tesla data 9-29", "Tesla data 9-30", 'Tesla data 10-1', 'Tesla data 10-2', 'Tesla data 10-3', 'Tesla data 10-4', 'Tesla data 10-5', 'Tesla data 10-6', 'Tesla data 10-7', 'Tesla data 10-8', 'Tesla data 10-9', 'Tesla data 10-10', 'Tesla data 10-11', 'Tesla data 10-12', 'Tesla data 10-13', 'Tesla data 10-14', 'Tesla data 10-15', 'Tesla data 10-16', 'Tesla data 10-17', 'Tesla data 10-18', 'Tesla data 10-19', 'Tesla data 10-20', 'Tesla data 10-21', 'Tesla data 10-22', 'Tesla data 10-23', 'Tesla data 10-24']
+    fileNames = ["Tesla data 9-23", "Tesla data 9-24", "Tesla data 9-25", "Tesla data 9-26", "Tesla data 9-27","Tesla data 9-28", "Tesla data 9-29", "Tesla data 9-30", 'Tesla data 10-1', 'Tesla data 10-2', 'Tesla data 10-3', 'Tesla data 10-4', 'Tesla data 10-5', 'Tesla data 10-6', 'Tesla data 10-7', 'Tesla data 10-8', 'Tesla data 10-9', 'Tesla data 10-10', 'Tesla data 10-11', 'Tesla data 10-12', 'Tesla data 10-13', 'Tesla data 10-14', 'Tesla data 10-15', 'Tesla data 10-16', 'Tesla data 10-17', 'Tesla data 10-18', 'Tesla data 10-19', 'Tesla data 10-20', 'Tesla data 10-21', 'Tesla data 10-22', 'Tesla data 10-23', 'Tesla data 10-24']
     dayNames = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 
     #32 days
@@ -102,7 +137,7 @@ if __name__ == "__main__":
     weight1 = 1 #importance of cost 
     weight2 = 0.5 #importance of renewable integ
     weight3 = 0.5 #importance of shutoff
-    lowerLimit = 20
+    lowerLimit = 30
     maximumLimit = 100
     shutOffRisk = 0
     idealReserveThreshold = 80
@@ -128,7 +163,7 @@ if __name__ == "__main__":
 
     for ind, name in enumerate(fileNames):
         #print(currentBatteryState)
-        home, solar, powerwall, grid, battery_level = parse("data/month/"+name+".csv")
+        home, solar, powerwall, grid, battery_level = parse("data/month/"+name+" (1).csv")
 
         #extracting data
         actual_grid = actual_grid + grid
@@ -136,7 +171,7 @@ if __name__ == "__main__":
         entire_solar = entire_solar + solar
         actual_battery = actual_battery + battery_level
         energyFlow = computeEnergyFlow(solar, home)
-        costGrid, costRenewableIntegration, excessSolar, excessBattery, utility, temp_battery= computePredictedBatteryChargeAndTotalCost(currentBatteryState1, energyFlow, 20, batterySize)
+        costGrid, costRenewableIntegration, excessSolar, excessBattery, utility, temp_battery= computePredictedBatteryChargeAndTotalCost(currentBatteryState1, energyFlow, lowerLimit, batterySize)
         utility = utility[:96]
         solarToGrid += sum([item*1000 for item in utility if item >= 0])
         gridUsage += sum([item*-1000 for item in utility if item <= 0])
@@ -149,17 +184,17 @@ if __name__ == "__main__":
         pred_battery_tesla = pred_battery_tesla + temp_battery
     print("Original grid usage: {}%, solar to grid: {}%".format(gridUsage*100/ sum(entire_home), solarToGrid*100/(sum(entire_solar))))
 
-    val1, val2, u_, endingBatt = checkTime(originalBatteryState, batterySize, filtered_base*4, entire_solar, True, filtered_flex_nozeroes, 0, 88)
+    # val1, val2, u_, endingBatt = checkTime(originalBatteryState, batterySize, filtered_base*4, entire_solar, True, filtered_flex_nozeroes, 0, 88)
 
     # val1, val2, u_ = checkTime(originalBatteryState, batterySize, filtered_base[:672], entire_solar, False, filtered_flex_nozeroes, 0, 88)
-    print("With flex load grid usage: {}%, solar to grid: {}%".format(val1, val2))
+    # print("With flex load grid usage: {}%, solar to grid: {}%".format(val1, val2))
 
-    avgImprovedGridUsage, avgImprovedRenewableIntegration = 0,0
-
+    algoScheduleResults = []
+    iterations = 5000
     for ind, name in enumerate(fileNames):
         #print(currentBatteryState)
 
-        home, solar, powerwall, grid, battery_level = parse("data/month/"+name+".csv")
+        home, solar, powerwall, grid, battery_level = parse("data/month/"+name+" (1).csv")
 
 
         # algorithm testing 
@@ -185,13 +220,25 @@ if __name__ == "__main__":
         shouldCharge = should_charge(user_model, best_threshold, costCharge)
         print("Results for {}: Best threshold - {}, Should charge - {}, Best times - {}. ".format(name, best_threshold, shouldCharge, besttimes))
 
-        val1, val2, u_, endingBatt = checkTime(originalBatteryState, batterySize, filtered_base*4, entire_solar, shouldCharge, filtered_flex_nozeroes, ind, findRange(good_times + [0])[0][0])
-        # print(u_)
-        avgImprovedGridUsage += val1
-        avgImprovedRenewableIntegration += val2
-        print("Estimated performance if charging today at {}: grid usage {}%, solar to grid: {}%, with ending battery {}".format(convertIndexToTime(findRange(good_times + [0])[0][0]), val1*100, val2*100, round(endingBatt / (batterySize/1000), 2)*100 ))
-
+        if shouldCharge:
+            algoScheduleResults.append([ind, findRange(good_times + [0])[0][0]])
         print("--------------------------------------------------------------------------")
+
+    avgImprovedGridUsage, avgImprovedRenewableIntegration = 0,0
+    reconstructed_filter = reconstructFilter(filtered_flex)
+    diff = len(algoScheduleResults) - len(reconstructed_filter)
+    if (diff <= 0):
+        print("Error: more charging days to schedule than given options")
+    
+    #randomly choose days to charge
+    for i in range(iterations):
+        randomSchedule = randomlyPruneSchedule(algoScheduleResults, diff)
+        val1, val2, u_, endingBatt = checkMonth(originalBatteryState, batterySize, filtered_base*4, entire_solar, reconstructed_filter, randomSchedule)
+        avgImprovedGridUsage += val1*100
+        avgImprovedRenewableIntegration += val2*100
+        #print("Estimated performance: grid usage {}%, solar to grid: {}%, with ending battery {}".format(val1*100, val2*100, round(endingBatt / (batterySize/1000), 2)*100 ))
+
+
 
     #model
     print("DATA:")
@@ -204,10 +251,10 @@ if __name__ == "__main__":
 
     #testing results
     print("RESULTS:")
-    print("Avg improved gridusage: {}, Avg improved renewable integration: {}".format(avgImprovedGridUsage/32, avgImprovedRenewableIntegration/32))
+    print("Avg improved gridusage: {}, Avg improved renewable integration: {}".format(avgImprovedGridUsage/iterations, avgImprovedRenewableIntegration/iterations))
     # battery_level_from_forecasted = [round(item / (batterySize/1000), 2)*100 for item in battery_level_from_forecasted] #convert to battery percentage
     # print(battery_level_from_forecasted)
-    # print(weekly_best_times)
+    print(weekly_best_times)
 
 
 
